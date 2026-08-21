@@ -4,7 +4,7 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 28
-  productGUID: 1cae910a80b840d46b6fdc5b8fc51217
+  productGUID: e6500004f696ea5468940e58423b0d72
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: Opressao
+  productName: OpressaoUnity_
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -843,14 +843,14 @@ PlayerSettings:
   editorAssembliesCompatibilityLevel: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: Opressao
+  metroPackageName: OpressaoUnity_
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: Opressao
+  metroApplicationDescription: OpressaoUnity_
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -921,10 +921,10 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
-  cloudProjectId: 205f953c-6124-449a-a016-5975dbf12542
+  cloudProjectId: 8985213a-8a14-487d-b42e-5e3d3f2932de
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Opressao 2026-08-21_12-19-04
+  projectName: OpressaoUnity_
   organizationId: a_morales_olate
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
