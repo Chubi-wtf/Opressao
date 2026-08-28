@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Nicole\\Documents\\GitHub\\Opressao\\OpressaoUnity_\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|c:\\users\\nicole\\documents\\github\\opressao\\opressaounity_\\assets\\scripts\\qtemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\qtemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "QTEManager.cs",
+              "DocumentMoniker": "C:\\Users\\Nicole\\Documents\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\QTEManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\QTEManager.cs",
+              "ToolTip": "C:\\Users\\Nicole\\Documents\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\QTEManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\QTEManager.cs",
+              "ViewState": "AgIAAPEAAAAAAAAAAAAqwAYBAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-28T00:13:15.258Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
