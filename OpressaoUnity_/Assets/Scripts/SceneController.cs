@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>Funciones simples para botones de menú, reinicio y cambio de escena.</summary>
 public class SceneController : MonoBehaviour
 {
     public void RestartScene()

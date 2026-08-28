@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\assets\\scripts\\qtemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\qtemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|c:\\users\\alumno\\documents\\unity projects\\opress\u00E3o\\opressaounity_\\assets\\scripts\\scenecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\scenecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|c:\\users\\alumno\\documents\\unity projects\\opress\u00E3o\\opressaounity_\\assets\\scripts\\qtemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\qtemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,11 +18,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "SceneController.cs",
               "DocumentMoniker": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\SceneController.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\SceneController.cs",
@@ -35,13 +35,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "QTEManager.cs",
               "DocumentMoniker": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\QTEManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\QTEManager.cs",
               "ToolTip": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\QTEManager.cs",
               "RelativeToolTip": "Assets\\Scripts\\QTEManager.cs",
-              "ViewState": "AgIAABIBAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-08-28T13:06:28.769Z",
               "EditorCaption": ""
