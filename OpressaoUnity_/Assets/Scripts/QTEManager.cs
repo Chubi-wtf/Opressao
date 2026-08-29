@@ -35,7 +35,11 @@ public class QTEManager : MonoBehaviour
     [SerializeField] private Text instructionText;
     [SerializeField] private Text sequenceText;
     [SerializeField] private Image progressBar;
+    [Tooltip("Barra antigua. Se conserva por compatibilidad, pero el temporizador visual usa los dos cierres de abajo.")]
     [SerializeField] private Image timerBar;
+    [SerializeField] private RectTransform timerContainer;
+    [SerializeField] private RectTransform leftTimerClose;
+    [SerializeField] private RectTransform rightTimerClose;
 
     [Header("QTE de la cinemática")]
     [SerializeField] private List<QTEConfig> qtes = new();
@@ -60,6 +64,11 @@ public class QTEManager : MonoBehaviour
         East,
         West,
         North
+    }
+
+    private void Awake()
+    {
+        EnsureClosingTimerVisual();
     }
 
     private void Start()
@@ -239,6 +248,56 @@ public class QTEManager : MonoBehaviour
 
         if (timerBar != null)
             timerBar.fillAmount = Mathf.Clamp01(timeRemaining / currentQTE.timeLimit);
+
+        if (timerContainer == null || leftTimerClose == null || rightTimerClose == null)
+            return;
+
+        // A medida que se acaba el tiempo, los dos bloques avanzan hacia el centro.
+        float elapsed = 1f - Mathf.Clamp01(timeRemaining / currentQTE.timeLimit);
+        float closeWidth = timerContainer.rect.width * 0.5f * elapsed;
+        leftTimerClose.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, closeWidth);
+        rightTimerClose.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, closeWidth);
+    }
+
+    private void EnsureClosingTimerVisual()
+    {
+        if (qtePanel == null || (timerContainer != null && leftTimerClose != null && rightTimerClose != null))
+            return;
+
+        // Se crea por código para que la escena existente no necesite prefabs adicionales.
+        timerContainer = CreateUiImage("QTE_Timer", qtePanel.transform, new Color(0f, 0f, 0f, 0.82f));
+        timerContainer.anchorMin = timerContainer.anchorMax = new Vector2(0.5f, 0.5f);
+        timerContainer.pivot = new Vector2(0.5f, 0.5f);
+        timerContainer.anchoredPosition = new Vector2(0f, -190f);
+        timerContainer.sizeDelta = new Vector2(700f, 34f);
+
+        leftTimerClose = CreateUiImage("Cierre izquierdo", timerContainer, new Color(0.86f, 0.15f, 0.18f, 1f));
+        leftTimerClose.anchorMin = new Vector2(0f, 0f);
+        leftTimerClose.anchorMax = new Vector2(0f, 1f);
+        leftTimerClose.pivot = new Vector2(0f, 0.5f);
+        leftTimerClose.anchoredPosition = Vector2.zero;
+        leftTimerClose.sizeDelta = new Vector2(0f, 0f);
+
+        rightTimerClose = CreateUiImage("Cierre derecho", timerContainer, new Color(0.86f, 0.15f, 0.18f, 1f));
+        rightTimerClose.anchorMin = new Vector2(1f, 0f);
+        rightTimerClose.anchorMax = new Vector2(1f, 1f);
+        rightTimerClose.pivot = new Vector2(1f, 0.5f);
+        rightTimerClose.anchoredPosition = Vector2.zero;
+        rightTimerClose.sizeDelta = new Vector2(0f, 0f);
+
+        if (timerBar != null)
+            timerBar.gameObject.SetActive(false);
+    }
+
+    private static RectTransform CreateUiImage(string objectName, Transform parent, Color color)
+    {
+        var item = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        RectTransform rect = item.GetComponent<RectTransform>();
+        rect.SetParent(parent, false);
+        Image image = item.GetComponent<Image>();
+        image.color = color;
+        image.raycastTarget = false;
+        return rect;
     }
 
     private void ShowSequence()
