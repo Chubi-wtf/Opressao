@@ -143,12 +143,12 @@ public class QTEManager : MonoBehaviour
         switch (currentQTE.type)
         {
             case QTEType.HoldButtons:
-                SetText(instructionText, "Mantén L2 + R2  /  Teclado: Q + E");
+                SetText(instructionText, "Mantén L2 + R2\nTeclado: Q + E");
                 SetText(sequenceText, "");
                 break;
 
             case QTEType.ButtonSequence:
-                SetText(instructionText, "Pulsa la secuencia  /  Teclado: WASD o flechas");
+                SetText(instructionText, "Mando: A / B / X / Y\nTeclado: WASD o flechas");
                 int length = Mathf.Max(1, Mathf.RoundToInt(currentQTE.requiredAmount));
                 for (int i = 0; i < length; i++)
                     sequence.Add((FaceButton)UnityEngine.Random.Range(0, 4));
@@ -156,7 +156,7 @@ public class QTEManager : MonoBehaviour
                 break;
 
             case QTEType.RotateStick:
-                SetText(instructionText, "Gira un análogo  /  Teclado: recorre WASD en círculo");
+                SetText(instructionText, "Gira cualquier análogo\nTeclado: recorre WASD o flechas en círculo");
                 SetText(sequenceText, "↻");
                 break;
         }
@@ -348,10 +348,10 @@ public class QTEManager : MonoBehaviour
 
     private static string ButtonName(FaceButton button) => button switch
     {
-        FaceButton.South => "A  /  S  /  ↓",
-        FaceButton.East => "B  /  D  /  →",
-        FaceButton.West => "X  /  A  /  ←",
-        FaceButton.North => "Y  /  W  /  ↑",
+        FaceButton.South => "A (mando)  /  S o ↓",
+        FaceButton.East => "B (mando)  /  D o →",
+        FaceButton.West => "X (mando)  /  A o ←",
+        FaceButton.North => "Y (mando)  /  W o ↑",
         _ => "?"
     };
 

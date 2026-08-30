@@ -12,9 +12,10 @@ public sealed class QTEStartOnTimelineImage : MonoBehaviour
 
     private IEnumerator Start()
     {
-        // Espera un frame: así QTEManager ya ejecutó Start y no ocultará el panel
-        // después de que lo activemos.
-        yield return null;
+        // Timeline puede habilitar esta imagen durante la inicialización. Esperamos
+        // a que todos los Start de la escena terminen antes de abrir el QTE.
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForSeconds(0.1f);
 
         if (qteManager == null)
             qteManager = FindFirstObjectByType<QTEManager>();

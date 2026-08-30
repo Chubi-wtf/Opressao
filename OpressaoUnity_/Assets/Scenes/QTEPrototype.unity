@@ -286,8 +286,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -9.999954}
-  m_SizeDelta: {x: 160, y: 30}
+  m_AnchoredPosition: {x: 0, y: 100}
+  m_SizeDelta: {x: 700, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &125262215
 MonoBehaviour:
@@ -772,7 +772,7 @@ MonoBehaviour:
   timeline: {fileID: 390146858}
   qtePanel: {fileID: 1763965619}
   gameOverPanel: {fileID: 2012543521}
-  titleText: {fileID: 125262215}
+  titleText: {fileID: 2003094817}
   instructionText: {fileID: 125262215}
   sequenceText: {fileID: 1468171432}
   progressBar: {fileID: 1566072866}
