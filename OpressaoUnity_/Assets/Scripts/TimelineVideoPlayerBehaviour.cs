@@ -10,6 +10,7 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
     {
         videoPlayer = GetComponent<VideoPlayer>();
         videoPlayer.playOnAwake = false;
+        videoPlayer.isLooping = true;
     }
 
     private void OnEnable()
@@ -23,6 +24,7 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
         videoPlayer.Stop();
         videoPlayer.frame = 0;
         videoPlayer.Play();
+
     }
 
     private void OnDisable()
@@ -30,4 +32,5 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
         if (videoPlayer != null && Application.isPlaying)
             videoPlayer.Stop();
     }
+
 }

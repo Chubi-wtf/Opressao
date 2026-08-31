@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -27,6 +28,10 @@ public class QTEManager : MonoBehaviour
 {
     [Header("Timeline")]
     [SerializeField] private PlayableDirector timeline;
+    [SerializeField] private bool startFirstQteWithScene;
+    [SerializeField, Min(0f)] private float firstQteStartDelay = 0.15f;
+    [Tooltip("Segundo de Timeline al que salta cada QTE cuando se completa. Deben coincidir con el inicio del siguiente video.")]
+    [SerializeField] private List<double> successVideoTimes = new() { 6.216666666666656d, 18.483333333333334d };
 
     [Header("Interfaz")]
     [SerializeField] private GameObject qtePanel;
@@ -69,12 +74,30 @@ public class QTEManager : MonoBehaviour
     private void Awake()
     {
         EnsureClosingTimerVisual();
+        EnsureQteOverlayCanvas();
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
         SetActive(qtePanel, false);
         SetActive(gameOverPanel, false);
+
+        // No dependemos de Play On Awake: al evaluar el cero se aplica la
+        // Activation Track de la primera imagen y luego Timeline avanza.
+        if (timeline != null)
+        {
+            timeline.time = 0d;
+            timeline.Evaluate();
+            timeline.Play();
+        }
+
+        if (!startFirstQteWithScene || qtes.Count == 0)
+            yield break;
+
+        if (firstQteStartDelay > 0f)
+            yield return new WaitForSeconds(firstQteStartDelay);
+
+        StartQTE(0);
     }
 
     private void Update()
@@ -121,18 +144,64 @@ public class QTEManager : MonoBehaviour
         previousDirection = Vector2.zero;
         accumulatedAngle = 0f;
 
-        if (timeline != null) timeline.Pause();
+        // El Signal se ubica al inicio del video que requiere QTE. Al pausar
+        // Timeline ese video sigue activo y su VideoPlayer queda en loop,
+        // mientras que los tramos sin Signal avanzan normalmente.
+        if (timeline != null)
+            timeline.Pause();
+
         SetActive(gameOverPanel, false);
         SetActive(qtePanel, true);
+
+        // CinematicVideos está después de QTEPanel dentro del Canvas y sus
+        // RawImages cubrían el texto. Como último hermano, el QTE se dibuja
+        // sobre cualquier imagen o video de la cinemática.
+        qtePanel.transform.SetAsLastSibling();
+        Canvas.ForceUpdateCanvases();
 
         if (titleText != null) titleText.text = currentQTE.title;
         PrepareInstructions();
         UpdateBars();
     }
 
+    public bool IsQteActive => qteActive;
+
+    /// <summary>
+    /// Lo llaman los videos de Timeline al aparecer. Cada video abre el QTE
+    /// siguiente, pero nunca interrumpe uno que ya esté en curso.
+    /// </summary>
+    public void StartNextQTE()
+    {
+        if (qteActive || currentIndex >= qtes.Count - 1)
+            return;
+
+        StartQTE(currentIndex + 1);
+    }
+
     public void RetryQTE()
     {
-        if (currentIndex >= 0) StartQTE(currentIndex);
+        // El botón de derrota debe reiniciar la cinemática completa, no sólo
+        // el QTE que acababa de fallar.
+        qteActive = false;
+        currentQTE = null;
+        currentIndex = -1;
+        timeRemaining = 0f;
+        progress = 0f;
+        sequence.Clear();
+        sequencePosition = 0;
+        previousDirection = Vector2.zero;
+        accumulatedAngle = 0f;
+
+        SetActive(qtePanel, false);
+        SetActive(gameOverPanel, false);
+
+        if (timeline == null)
+            return;
+
+        timeline.Stop();
+        timeline.time = 0d;
+        timeline.Evaluate();
+        timeline.Play();
     }
 
     private void PrepareInstructions()
@@ -148,7 +217,8 @@ public class QTEManager : MonoBehaviour
                 break;
 
             case QTEType.ButtonSequence:
-                SetText(instructionText, "Mando: A / B / X / Y\nTeclado: WASD o flechas");
+                SetText(instructionText, "Sigue el botón indicado\nMando: A / B / X / Y · Teclado: WASD o flechas");
+                ConfigureSequencePromptLayout();
                 int length = Mathf.Max(1, Mathf.RoundToInt(currentQTE.requiredAmount));
                 for (int i = 0; i < length; i++)
                     sequence.Add((FaceButton)UnityEngine.Random.Range(0, 4));
@@ -225,19 +295,43 @@ public class QTEManager : MonoBehaviour
 
     private void CompleteQTE()
     {
+        int completedIndex = currentIndex;
         qteActive = false;
         SetActive(qtePanel, false);
         currentQTE.onSuccess?.Invoke();
 
-        if (timeline != null) timeline.Resume();
-        if (currentIndex == qtes.Count - 1) onAllQtesCompleted?.Invoke();
+        ContinueAtNextVideo();
+
+        if (completedIndex == qtes.Count - 1) onAllQtesCompleted?.Invoke();
+    }
+
+    private void ContinueAtNextVideo()
+    {
+        if (timeline == null)
+            return;
+
+        // En vez de continuar el hueco que queda en el clip de la imagen,
+        // saltamos al comienzo del video asociado a este QTE.
+        if (currentIndex >= 0 && currentIndex < successVideoTimes.Count)
+        {
+            timeline.time = successVideoTimes[currentIndex];
+            timeline.Evaluate();
+            timeline.Play();
+            return;
+        }
+
+        timeline.Resume();
+        if (timeline.state != PlayState.Playing)
+            timeline.Play();
     }
 
     private void FailQTE()
     {
         qteActive = false;
         SetActive(qtePanel, false);
+        if (timeline != null) timeline.Pause();
         SetActive(gameOverPanel, true);
+        gameOverPanel.transform.SetAsLastSibling();
         currentQTE.onFailure?.Invoke();
     }
 
@@ -289,6 +383,22 @@ public class QTEManager : MonoBehaviour
             timerBar.gameObject.SetActive(false);
     }
 
+    private void EnsureQteOverlayCanvas()
+    {
+        if (qtePanel == null)
+            return;
+
+        // La capa de videos se activa desde Timeline y puede reconstruirse
+        // después del panel. Este Canvas anidado garantiza que las
+        // instrucciones queden siempre por delante de los RawImage de video.
+        Canvas overlayCanvas = qtePanel.GetComponent<Canvas>();
+        if (overlayCanvas == null)
+            overlayCanvas = qtePanel.AddComponent<Canvas>();
+
+        overlayCanvas.overrideSorting = true;
+        overlayCanvas.sortingOrder = 100;
+    }
+
     private static RectTransform CreateUiImage(string objectName, Transform parent, Color color)
     {
         var item = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
@@ -303,7 +413,21 @@ public class QTEManager : MonoBehaviour
     private void ShowSequence()
     {
         if (sequencePosition >= sequence.Count) return;
-        SetText(sequenceText, ButtonName(sequence[sequencePosition]));
+        SetText(sequenceText, $"PULSA AHORA:\n{ButtonName(sequence[sequencePosition])}");
+    }
+
+    private void ConfigureSequencePromptLayout()
+    {
+        if (sequenceText == null)
+            return;
+
+        RectTransform prompt = sequenceText.rectTransform;
+        prompt.anchorMin = prompt.anchorMax = new Vector2(0.5f, 0.5f);
+        prompt.pivot = new Vector2(0.5f, 0.5f);
+        prompt.anchoredPosition = new Vector2(0f, -20f);
+        prompt.sizeDelta = new Vector2(760f, 120f);
+        sequenceText.alignment = TextAnchor.MiddleCenter;
+        sequenceText.fontSize = 32;
     }
 
     private static FaceButton? ReadFaceButton()

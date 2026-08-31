@@ -26,6 +26,7 @@ public sealed class QTEStartOnTimelineImage : MonoBehaviour
             yield break;
         }
 
-        qteManager.StartQTE(qteIndex);
+        if (!qteManager.IsQteActive)
+            qteManager.StartQTE(qteIndex);
     }
 }
