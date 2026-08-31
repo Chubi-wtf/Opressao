@@ -105,6 +105,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde0d25a170598d46a0b9dc16b4527a5, type: 3}
   m_Name: ActivationPlayableAsset(Clone)(Clone)(Clone)(Clone)(Clone)(Clone)(Clone)(Clone)
   m_EditorClassIdentifier: 
+--- !u!114 &-6440512435800006585
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15c38f6fa1940124db1ab7f6fe7268d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 30.8
+  m_Retroactive: 1
+  m_EmitOnce: 1
+  m_Asset: {fileID: 11400000, guid: 5e63caee50007ac4a9a2848368ce0174, type: 2}
 --- !u!114 &-6439642940867552020
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -398,10 +414,10 @@ MonoBehaviour:
     m_PreExtrapolationTime: 0
     m_DisplayName: 1898be7161184a147cf38537d0c2dc28_720w
   - m_Version: 1
-    m_Start: 33.283333333333324
+    m_Start: 39.93333333333333
     m_ClipIn: 0
     m_Asset: {fileID: -8616117776094534809}
-    m_Duration: 1.8666666666666671
+    m_Duration: 5.483333333333334
     m_TimeScale: 1
     m_ParentTrack: {fileID: -3991599912031174278}
     m_EaseInDuration: 0
@@ -534,7 +550,7 @@ MonoBehaviour:
     m_Start: 30.8
     m_ClipIn: 0
     m_Asset: {fileID: -5344456565061073031}
-    m_Duration: 2.4833333333333343
+    m_Duration: 9.13333333333333
     m_TimeScale: 1
     m_ParentTrack: {fileID: -3037474583855193965}
     m_EaseInDuration: 0
@@ -683,6 +699,7 @@ MonoBehaviour:
     - {fileID: 6339033640967968033}
     - {fileID: -4852682134633088786}
     - {fileID: 8229521931236376040}
+    - {fileID: -6440512435800006585}
 --- !u!114 &3376841179839368563
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -719,7 +736,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15c38f6fa1940124db1ab7f6fe7268d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 1.55
+  m_Time: 0
   m_Retroactive: 1
   m_EmitOnce: 1
   m_Asset: {fileID: 11400000, guid: 5e63caee50007ac4a9a2848368ce0174, type: 2}

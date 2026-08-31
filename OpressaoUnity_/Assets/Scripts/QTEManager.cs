@@ -226,7 +226,7 @@ public class QTEManager : MonoBehaviour
                 break;
 
             case QTEType.RotateStick:
-                SetText(instructionText, "Gira cualquier análogo\nTeclado: recorre WASD o flechas en círculo");
+                SetText(instructionText, "Gira cualquier análogo en ambos sentidos\nTeclado: A → S → D → W → A, o al revés");
                 SetText(sequenceText, "↻");
                 break;
         }
@@ -281,9 +281,12 @@ public class QTEManager : MonoBehaviour
 
         if (previousDirection.magnitude >= 0.65f)
         {
+            // El valor absoluto permite círculos horario y antihorario.
             float angle = Mathf.Abs(Vector2.SignedAngle(previousDirection, direction));
 
-            if (angle < 100f)
+            // Ignora el ruido mínimo y los saltos directos de 180°; cada
+            // cuarto de vuelta con WASD/flechas cuenta en ambos sentidos.
+            if (angle >= 12f && angle <= 135f)
             {
                 accumulatedAngle += angle;
                 progress = accumulatedAngle / 360f;
@@ -346,7 +349,8 @@ public class QTEManager : MonoBehaviour
         if (timerContainer == null || leftTimerClose == null || rightTimerClose == null)
             return;
 
-        // A medida que se acaba el tiempo, los dos bloques avanzan hacia el centro.
+        // A medida que se acaba el tiempo, los cierres negros avanzan desde
+        // los extremos hacia el centro y cubren la barra roja restante.
         float elapsed = 1f - Mathf.Clamp01(timeRemaining / currentQTE.timeLimit);
         float closeWidth = timerContainer.rect.width * 0.5f * elapsed;
         leftTimerClose.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, closeWidth);
@@ -355,32 +359,59 @@ public class QTEManager : MonoBehaviour
 
     private void EnsureClosingTimerVisual()
     {
-        if (qtePanel == null || (timerContainer != null && leftTimerClose != null && rightTimerClose != null))
+        if (qtePanel == null)
             return;
 
+        // Si se asignó el mismo ProgressBar a ambos campos (como en la
+        // captura), no existen dos cierres independientes. Se descarta esa
+        // referencia y se construye el temporizador correcto automáticamente.
+        bool validTimer = timerContainer != null &&
+                          leftTimerClose != null &&
+                          rightTimerClose != null &&
+                          leftTimerClose != rightTimerClose &&
+                          leftTimerClose != timerContainer &&
+                          rightTimerClose != timerContainer &&
+                          leftTimerClose.IsChildOf(timerContainer) &&
+                          rightTimerClose.IsChildOf(timerContainer);
+
+        if (validTimer)
+            return;
+
+        timerContainer = null;
+        leftTimerClose = null;
+        rightTimerClose = null;
+
         // Se crea por código para que la escena existente no necesite prefabs adicionales.
-        timerContainer = CreateUiImage("QTE_Timer", qtePanel.transform, new Color(0f, 0f, 0f, 0.82f));
+        // La barra empieza roja y se cierra desde fuera hacia dentro.
+        timerContainer = CreateUiImage("QTE_Timer", qtePanel.transform, new Color(0.86f, 0.15f, 0.18f, 1f));
         timerContainer.anchorMin = timerContainer.anchorMax = new Vector2(0.5f, 0.5f);
         timerContainer.pivot = new Vector2(0.5f, 0.5f);
-        timerContainer.anchoredPosition = new Vector2(0f, -190f);
+        // Bajo las instrucciones: separa claramente el texto de la cuenta atrás.
+        timerContainer.anchoredPosition = new Vector2(0f, -330f);
         timerContainer.sizeDelta = new Vector2(700f, 34f);
 
-        leftTimerClose = CreateUiImage("Cierre izquierdo", timerContainer, new Color(0.86f, 0.15f, 0.18f, 1f));
+        leftTimerClose = CreateUiImage("Cierre izquierdo", timerContainer, new Color(0f, 0f, 0f, 0.82f));
         leftTimerClose.anchorMin = new Vector2(0f, 0f);
         leftTimerClose.anchorMax = new Vector2(0f, 1f);
         leftTimerClose.pivot = new Vector2(0f, 0.5f);
         leftTimerClose.anchoredPosition = Vector2.zero;
         leftTimerClose.sizeDelta = new Vector2(0f, 0f);
 
-        rightTimerClose = CreateUiImage("Cierre derecho", timerContainer, new Color(0.86f, 0.15f, 0.18f, 1f));
+        rightTimerClose = CreateUiImage("Cierre derecho", timerContainer, new Color(0f, 0f, 0f, 0.82f));
         rightTimerClose.anchorMin = new Vector2(1f, 0f);
         rightTimerClose.anchorMax = new Vector2(1f, 1f);
         rightTimerClose.pivot = new Vector2(1f, 0.5f);
         rightTimerClose.anchoredPosition = Vector2.zero;
         rightTimerClose.sizeDelta = new Vector2(0f, 0f);
 
+        // El Slider/ProgressBar que venía en la escena es una barra de prueba
+        // independiente. El QTE usa QTE_Timer, por lo que se oculta para que
+        // no aparezcan dos barras superpuestas durante el juego.
         if (timerBar != null)
             timerBar.gameObject.SetActive(false);
+
+        foreach (Slider legacySlider in qtePanel.GetComponentsInChildren<Slider>(true))
+            legacySlider.gameObject.SetActive(false);
     }
 
     private void EnsureQteOverlayCanvas()
@@ -457,7 +488,11 @@ public class QTEManager : MonoBehaviour
         {
             Vector2 left = Gamepad.current.leftStick.ReadValue();
             Vector2 right = Gamepad.current.rightStick.ReadValue();
-            return left.sqrMagnitude >= right.sqrMagnitude ? left : right;
+            Vector2 stick = left.sqrMagnitude >= right.sqrMagnitude ? left : right;
+
+            // Un mando conectado, pero quieto, no debe bloquear WASD.
+            if (stick.sqrMagnitude >= 0.65f * 0.65f)
+                return stick;
         }
 
         if (Keyboard.current == null) return Vector2.zero;
