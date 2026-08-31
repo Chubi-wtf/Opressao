@@ -12,8 +12,6 @@ public sealed class QTEStartOnTimelineImage : MonoBehaviour
 
     private IEnumerator Start()
     {
-        // Timeline puede habilitar esta imagen durante la inicialización. Esperamos
-        // a que todos los Start de la escena terminen antes de abrir el QTE.
         yield return new WaitForEndOfFrame();
         yield return new WaitForSeconds(0.1f);
 

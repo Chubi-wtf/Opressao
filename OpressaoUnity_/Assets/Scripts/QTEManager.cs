@@ -6,6 +6,7 @@ using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.Playables;
 using UnityEngine.UI;
+using TMPro;
 
 public enum QTEType
 {
@@ -30,33 +31,38 @@ public class QTEManager : MonoBehaviour
     [SerializeField] private PlayableDirector timeline;
     [SerializeField] private bool startFirstQteWithScene;
     [SerializeField, Min(0f)] private float firstQteStartDelay = 0.15f;
-    [Tooltip("Segundo de Timeline al que salta cada QTE cuando se completa. Deben coincidir con el inicio del siguiente video.")]
     [SerializeField] private List<double> successVideoTimes = new() { 6.216666666666656d, 18.483333333333334d };
 
-    [Header("Interfaz")]
+    [Header("UI")]
     [SerializeField] private GameObject qtePanel;
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private Text titleText;
     [SerializeField] private Text instructionText;
     [SerializeField] private Text sequenceText;
+    [SerializeField] private TMP_Text gameOverText;
     [SerializeField] private Image progressBar;
-    [Tooltip("Barra antigua. Se conserva por compatibilidad, pero el temporizador visual usa los dos cierres de abajo.")]
     [SerializeField] private Image timerBar;
     [SerializeField] private RectTransform timerContainer;
     [SerializeField] private RectTransform leftTimerClose;
     [SerializeField] private RectTransform rightTimerClose;
 
-    [Header("QTE de la cinemática")]
+    [Header("Cinematic QTEs")]
     [SerializeField] private List<QTEConfig> qtes = new();
 
-    [Header("Eventos generales")]
+    [Header("General Events")]
     public UnityEvent onAllQtesCompleted;
+
+    [Header("Diagnostics")]
+    [SerializeField] private bool debugQteFlow = true;
 
     private QTEConfig currentQTE;
     private int currentIndex = -1;
     private float timeRemaining;
     private float progress;
     private bool qteActive;
+    private Text feedbackText;
+    private float feedbackExpiresAt;
+    private bool holdInputWasCorrect;
 
     private readonly List<FaceButton> sequence = new();
     private int sequencePosition;
@@ -75,6 +81,8 @@ public class QTEManager : MonoBehaviour
     {
         EnsureClosingTimerVisual();
         EnsureQteOverlayCanvas();
+        EnsureGameOverPresentation();
+        EnsureFeedbackVisual();
     }
 
     private IEnumerator Start()
@@ -82,8 +90,6 @@ public class QTEManager : MonoBehaviour
         SetActive(qtePanel, false);
         SetActive(gameOverPanel, false);
 
-        // No dependemos de Play On Awake: al evaluar el cero se aplica la
-        // Activation Track de la primera imagen y luego Timeline avanza.
         if (timeline != null)
         {
             timeline.time = 0d;
@@ -103,6 +109,10 @@ public class QTEManager : MonoBehaviour
     private void Update()
     {
         if (!qteActive) return;
+
+        if (feedbackText != null && feedbackText.gameObject.activeSelf &&
+            Time.unscaledTime > feedbackExpiresAt)
+            feedbackText.gameObject.SetActive(false);
 
         timeRemaining -= Time.deltaTime;
 
@@ -143,19 +153,16 @@ public class QTEManager : MonoBehaviour
         qteActive = true;
         previousDirection = Vector2.zero;
         accumulatedAngle = 0f;
+        holdInputWasCorrect = false;
 
-        // El Signal se ubica al inicio del video que requiere QTE. Al pausar
-        // Timeline ese video sigue activo y su VideoPlayer queda en loop,
-        // mientras que los tramos sin Signal avanzan normalmente.
+        Trace($"Inicio QTE {index + 1}/{qtes.Count}: {currentQTE.title}. Límite: {currentQTE.timeLimit:0.##} s.");
+
         if (timeline != null)
             timeline.Pause();
 
         SetActive(gameOverPanel, false);
         SetActive(qtePanel, true);
 
-        // CinematicVideos está después de QTEPanel dentro del Canvas y sus
-        // RawImages cubrían el texto. Como último hermano, el QTE se dibuja
-        // sobre cualquier imagen o video de la cinemática.
         qtePanel.transform.SetAsLastSibling();
         Canvas.ForceUpdateCanvases();
 
@@ -166,22 +173,26 @@ public class QTEManager : MonoBehaviour
 
     public bool IsQteActive => qteActive;
 
-    /// <summary>
-    /// Lo llaman los videos de Timeline al aparecer. Cada video abre el QTE
-    /// siguiente, pero nunca interrumpe uno que ya esté en curso.
-    /// </summary>
     public void StartNextQTE()
     {
-        if (qteActive || currentIndex >= qtes.Count - 1)
+        if (qteActive)
+        {
+            Trace("Signal recibido mientras un QTE seguía activo; se ignora.");
             return;
+        }
 
+        if (currentIndex >= qtes.Count - 1)
+        {
+            Trace("Signal recibido, pero ya no quedan QTE configurados.");
+            return;
+        }
+
+        Trace($"Signal recibido: se abrirá el QTE {currentIndex + 2}.");
         StartQTE(currentIndex + 1);
     }
 
     public void RetryQTE()
     {
-        // El botón de derrota debe reiniciar la cinemática completa, no sólo
-        // el QTE que acababa de fallar.
         qteActive = false;
         currentQTE = null;
         currentIndex = -1;
@@ -214,6 +225,7 @@ public class QTEManager : MonoBehaviour
             case QTEType.HoldButtons:
                 SetText(instructionText, "Mantén L2 + R2\nTeclado: Q + E");
                 SetText(sequenceText, "");
+                ShowFeedback("MANTÉN AMBOS BOTONES", new Color(1f, 0.82f, 0.18f), 10f);
                 break;
 
             case QTEType.ButtonSequence:
@@ -223,11 +235,13 @@ public class QTEManager : MonoBehaviour
                 for (int i = 0; i < length; i++)
                     sequence.Add((FaceButton)UnityEngine.Random.Range(0, 4));
                 ShowSequence();
+                ShowFeedback("", Color.white, 0f);
                 break;
 
             case QTEType.RotateStick:
                 SetText(instructionText, "Gira cualquier análogo en ambos sentidos\nTeclado: A → S → D → W → A, o al revés");
                 SetText(sequenceText, "↻");
+                ShowFeedback("COMPLETA UN GIRO", new Color(1f, 0.82f, 0.18f), 10f);
                 break;
         }
     }
@@ -243,9 +257,18 @@ public class QTEManager : MonoBehaviour
                           Gamepad.current.rightTrigger.ReadValue() > 0.65f;
 
         if (keyboard || controller)
+        {
             progress += Time.deltaTime;
+            ShowFeedback("✓ BOTONES CORRECTOS", new Color(0.25f, 1f, 0.42f), 0.2f);
+            holdInputWasCorrect = true;
+        }
         else
+        {
             progress = Mathf.Max(0f, progress - Time.deltaTime * 0.5f);
+            if (holdInputWasCorrect)
+                ShowFeedback("FALTAN BOTONES", new Color(1f, 0.38f, 0.32f), 1f);
+            holdInputWasCorrect = false;
+        }
     }
 
     private void UpdateSequenceQTE()
@@ -257,6 +280,7 @@ public class QTEManager : MonoBehaviour
         {
             sequencePosition++;
             progress = sequencePosition;
+            ShowFeedback("✓ CORRECTO", new Color(0.25f, 1f, 0.42f), 0.5f);
 
             if (sequencePosition < sequence.Count)
                 ShowSequence();
@@ -265,6 +289,7 @@ public class QTEManager : MonoBehaviour
         {
             sequencePosition = 0;
             progress = 0f;
+            ShowFeedback("✕ SECUENCIA REINICIADA", new Color(1f, 0.38f, 0.32f), 0.8f);
             ShowSequence();
         }
     }
@@ -281,15 +306,13 @@ public class QTEManager : MonoBehaviour
 
         if (previousDirection.magnitude >= 0.65f)
         {
-            // El valor absoluto permite círculos horario y antihorario.
             float angle = Mathf.Abs(Vector2.SignedAngle(previousDirection, direction));
 
-            // Ignora el ruido mínimo y los saltos directos de 180°; cada
-            // cuarto de vuelta con WASD/flechas cuenta en ambos sentidos.
             if (angle >= 12f && angle <= 135f)
             {
                 accumulatedAngle += angle;
                 progress = accumulatedAngle / 360f;
+                ShowFeedback("✓ GIRO DETECTADO", new Color(0.25f, 1f, 0.42f), 0.35f);
             }
         }
 
@@ -299,6 +322,7 @@ public class QTEManager : MonoBehaviour
     private void CompleteQTE()
     {
         int completedIndex = currentIndex;
+        Trace($"QTE {completedIndex + 1} completado correctamente.");
         qteActive = false;
         SetActive(qtePanel, false);
         currentQTE.onSuccess?.Invoke();
@@ -313,13 +337,12 @@ public class QTEManager : MonoBehaviour
         if (timeline == null)
             return;
 
-        // En vez de continuar el hueco que queda en el clip de la imagen,
-        // saltamos al comienzo del video asociado a este QTE.
         if (currentIndex >= 0 && currentIndex < successVideoTimes.Count)
         {
             timeline.time = successVideoTimes[currentIndex];
             timeline.Evaluate();
             timeline.Play();
+            Trace($"Timeline salta a {successVideoTimes[currentIndex]:0.###} s para el siguiente video.");
             return;
         }
 
@@ -330,10 +353,15 @@ public class QTEManager : MonoBehaviour
 
     private void FailQTE()
     {
+        Trace($"QTE {currentIndex + 1} fallado por tiempo.");
         qteActive = false;
         SetActive(qtePanel, false);
         if (timeline != null) timeline.Pause();
         SetActive(gameOverPanel, true);
+        EnsureGameOverPresentation();
+        GameObject visibleGameOverTitle = GameObject.Find("GameOverText");
+        if (visibleGameOverTitle != null && visibleGameOverTitle.TryGetComponent(out TMP_Text visibleText))
+            visibleText.text = "QTE FALLIDO";
         gameOverPanel.transform.SetAsLastSibling();
         currentQTE.onFailure?.Invoke();
     }
@@ -349,8 +377,6 @@ public class QTEManager : MonoBehaviour
         if (timerContainer == null || leftTimerClose == null || rightTimerClose == null)
             return;
 
-        // A medida que se acaba el tiempo, los cierres negros avanzan desde
-        // los extremos hacia el centro y cubren la barra roja restante.
         float elapsed = 1f - Mathf.Clamp01(timeRemaining / currentQTE.timeLimit);
         float closeWidth = timerContainer.rect.width * 0.5f * elapsed;
         leftTimerClose.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, closeWidth);
@@ -362,9 +388,6 @@ public class QTEManager : MonoBehaviour
         if (qtePanel == null)
             return;
 
-        // Si se asignó el mismo ProgressBar a ambos campos (como en la
-        // captura), no existen dos cierres independientes. Se descarta esa
-        // referencia y se construye el temporizador correcto automáticamente.
         bool validTimer = timerContainer != null &&
                           leftTimerClose != null &&
                           rightTimerClose != null &&
@@ -381,12 +404,9 @@ public class QTEManager : MonoBehaviour
         leftTimerClose = null;
         rightTimerClose = null;
 
-        // Se crea por código para que la escena existente no necesite prefabs adicionales.
-        // La barra empieza roja y se cierra desde fuera hacia dentro.
         timerContainer = CreateUiImage("QTE_Timer", qtePanel.transform, new Color(0.86f, 0.15f, 0.18f, 1f));
         timerContainer.anchorMin = timerContainer.anchorMax = new Vector2(0.5f, 0.5f);
         timerContainer.pivot = new Vector2(0.5f, 0.5f);
-        // Bajo las instrucciones: separa claramente el texto de la cuenta atrás.
         timerContainer.anchoredPosition = new Vector2(0f, -330f);
         timerContainer.sizeDelta = new Vector2(700f, 34f);
 
@@ -404,9 +424,6 @@ public class QTEManager : MonoBehaviour
         rightTimerClose.anchoredPosition = Vector2.zero;
         rightTimerClose.sizeDelta = new Vector2(0f, 0f);
 
-        // El Slider/ProgressBar que venía en la escena es una barra de prueba
-        // independiente. El QTE usa QTE_Timer, por lo que se oculta para que
-        // no aparezcan dos barras superpuestas durante el juego.
         if (timerBar != null)
             timerBar.gameObject.SetActive(false);
 
@@ -419,15 +436,67 @@ public class QTEManager : MonoBehaviour
         if (qtePanel == null)
             return;
 
-        // La capa de videos se activa desde Timeline y puede reconstruirse
-        // después del panel. Este Canvas anidado garantiza que las
-        // instrucciones queden siempre por delante de los RawImage de video.
         Canvas overlayCanvas = qtePanel.GetComponent<Canvas>();
         if (overlayCanvas == null)
             overlayCanvas = qtePanel.AddComponent<Canvas>();
 
         overlayCanvas.overrideSorting = true;
         overlayCanvas.sortingOrder = 100;
+    }
+
+    private void EnsureGameOverPresentation()
+    {
+        if (gameOverPanel == null)
+            return;
+
+        Transform title = gameOverPanel.transform.Find("GameOverText");
+        if (title != null)
+            gameOverText = title.GetComponent<TMP_Text>();
+
+        if (gameOverText == null)
+            gameOverText = gameOverPanel.GetComponentInChildren<TMP_Text>(true);
+
+        if (gameOverText != null)
+            gameOverText.text = "QTE FALLIDO";
+    }
+
+    private void EnsureFeedbackVisual()
+    {
+        if (qtePanel == null || feedbackText != null)
+            return;
+
+        GameObject item = new GameObject("QTE_Feedback", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+        item.transform.SetParent(qtePanel.transform, false);
+        feedbackText = item.GetComponent<Text>();
+        feedbackText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        feedbackText.fontSize = 26;
+        feedbackText.fontStyle = FontStyle.Bold;
+        feedbackText.alignment = TextAnchor.MiddleCenter;
+        feedbackText.raycastTarget = false;
+
+        RectTransform rect = feedbackText.rectTransform;
+        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = new Vector2(0f, -250f);
+        rect.sizeDelta = new Vector2(700f, 48f);
+        item.SetActive(false);
+    }
+
+    private void ShowFeedback(string message, Color color, float duration)
+    {
+        if (feedbackText == null)
+            return;
+
+        if (string.IsNullOrEmpty(message))
+        {
+            feedbackText.gameObject.SetActive(false);
+            return;
+        }
+
+        feedbackText.text = message;
+        feedbackText.color = color;
+        feedbackExpiresAt = Time.unscaledTime + duration;
+        feedbackText.gameObject.SetActive(true);
     }
 
     private static RectTransform CreateUiImage(string objectName, Transform parent, Color color)
@@ -490,7 +559,6 @@ public class QTEManager : MonoBehaviour
             Vector2 right = Gamepad.current.rightStick.ReadValue();
             Vector2 stick = left.sqrMagnitude >= right.sqrMagnitude ? left : right;
 
-            // Un mando conectado, pero quieto, no debe bloquear WASD.
             if (stick.sqrMagnitude >= 0.65f * 0.65f)
                 return stick;
         }
@@ -522,5 +590,13 @@ public class QTEManager : MonoBehaviour
     private static void SetText(Text target, string value)
     {
         if (target != null) target.text = value;
+    }
+
+    private void Trace(string message)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (debugQteFlow)
+            Debug.Log($"[QTE] {message}", this);
+#endif
     }
 }
