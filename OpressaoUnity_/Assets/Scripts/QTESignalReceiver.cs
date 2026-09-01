@@ -19,9 +19,8 @@ public sealed class QTESignalReceiver : MonoBehaviour, INotificationReceiver
         if (notification is not SignalEmitter signal || qteManager == null || qteManager.IsQteActive)
             return;
 
-        if (qteSignals.Contains(signal.asset))
-        {
-            qteManager.StartNextQTE();
-        }
+        int qteIndex = qteSignals.IndexOf(signal.asset);
+        if (qteIndex >= 0)
+            qteManager.StartQTE(qteIndex);
     }
 }

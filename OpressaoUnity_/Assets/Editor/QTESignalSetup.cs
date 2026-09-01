@@ -8,13 +8,11 @@ using UnityEngine.Timeline;
 
 public static class QTESignalSetup
 {
-    // Cada marcador coincide exactamente con el comienzo de un video que
-    // debe detener Timeline y pedir un QTE. Los demás videos no llevan Signal.
     private static readonly double[] SignalTimes =
     {
-        1.55d,
-        6.216666666666656d,
-        18.483333333333334d
+        0d,
+        6.1d,
+        18.38d
     };
 
     [MenuItem("Tools/Opressao/Configurar Signals de QTE")]
@@ -30,8 +28,6 @@ public static class QTESignalSetup
         SignalTrack track = timeline.GetRootTracks().OfType<SignalTrack>().FirstOrDefault(t => t.name == "QTE Signals")
             ?? timeline.CreateTrack<SignalTrack>(null, "QTE Signals");
 
-        // Este Timeline sólo usa una Signal Track. Eliminamos las antiguas,
-        // que no estaban enlazadas a ningún Signal Receiver.
         foreach (SignalTrack candidate in timeline.GetRootTracks().OfType<SignalTrack>().ToArray())
         {
             if (candidate != track)
@@ -54,8 +50,6 @@ public static class QTESignalSetup
 
             SignalEmitter marker = track.CreateMarker<SignalEmitter>(SignalTimes[index]);
             marker.asset = asset;
-            // También se emite al llegar por un salto tras completar el QTE
-            // anterior, para que el video nuevo pueda pausar Timeline.
             marker.retroactive = true;
             marker.emitOnce = true;
             signals.Add(asset);

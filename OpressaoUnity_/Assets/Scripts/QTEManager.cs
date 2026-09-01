@@ -94,7 +94,11 @@ public class QTEManager : MonoBehaviour
         {
             timeline.time = 0d;
             timeline.Evaluate();
-            timeline.Play();
+
+            if (qteActive)
+                TimelineVideoPlayerBehaviour.PauseAll();
+            else
+                timeline.Play();
         }
 
         if (!startFirstQteWithScene || qtes.Count == 0)
@@ -109,6 +113,15 @@ public class QTEManager : MonoBehaviour
     private void Update()
     {
         if (!qteActive) return;
+
+#if UNITY_EDITOR
+        if (debugQteFlow && Keyboard.current != null &&
+            (Keyboard.current.f10Key.wasPressedThisFrame || Keyboard.current.digit9Key.wasPressedThisFrame))
+        {
+            CompleteQTE();
+            return;
+        }
+#endif
 
         if (feedbackText != null && feedbackText.gameObject.activeSelf &&
             Time.unscaledTime > feedbackExpiresAt)
@@ -155,10 +168,13 @@ public class QTEManager : MonoBehaviour
         accumulatedAngle = 0f;
         holdInputWasCorrect = false;
 
+        SetActive(gameOverPanel, false);
+
         Trace($"Inicio QTE {index + 1}/{qtes.Count}: {currentQTE.title}. Límite: {currentQTE.timeLimit:0.##} s.");
 
         if (timeline != null)
             timeline.Pause();
+        TimelineVideoPlayerBehaviour.PauseAll();
 
         SetActive(gameOverPanel, false);
         SetActive(qtePanel, true);
@@ -210,9 +226,14 @@ public class QTEManager : MonoBehaviour
             return;
 
         timeline.Stop();
+        TimelineVideoPlayerBehaviour.StopAll();
         timeline.time = 0d;
         timeline.Evaluate();
-        timeline.Play();
+
+        if (qteActive)
+            TimelineVideoPlayerBehaviour.PauseAll();
+        else
+            timeline.Play();
     }
 
     private void PrepareInstructions()
@@ -229,7 +250,7 @@ public class QTEManager : MonoBehaviour
                 break;
 
             case QTEType.ButtonSequence:
-                SetText(instructionText, "Sigue el botón indicado\nMando: A / B / X / Y · Teclado: WASD o flechas");
+                SetText(instructionText, "A / B / X / Y · Teclado: WASD o flechas");
                 ConfigureSequencePromptLayout();
                 int length = Mathf.Max(1, Mathf.RoundToInt(currentQTE.requiredAmount));
                 for (int i = 0; i < length; i++)
@@ -239,7 +260,7 @@ public class QTEManager : MonoBehaviour
                 break;
 
             case QTEType.RotateStick:
-                SetText(instructionText, "Gira cualquier análogo en ambos sentidos\nTeclado: A → S → D → W → A, o al revés");
+                SetText(instructionText, " A → S → D → W → A, o al revés");
                 SetText(sequenceText, "↻");
                 ShowFeedback("COMPLETA UN GIRO", new Color(1f, 0.82f, 0.18f), 10f);
                 break;
@@ -341,7 +362,16 @@ public class QTEManager : MonoBehaviour
         {
             timeline.time = successVideoTimes[currentIndex];
             timeline.Evaluate();
+
+            if (qteActive)
+            {
+                TimelineVideoPlayerBehaviour.PauseAll();
+                Trace($"Timeline salta a {successVideoTimes[currentIndex]:0.###} s y abre el siguiente QTE.");
+                return;
+            }
+
             timeline.Play();
+            TimelineVideoPlayerBehaviour.ResumeAll();
             Trace($"Timeline salta a {successVideoTimes[currentIndex]:0.###} s para el siguiente video.");
             return;
         }
@@ -349,6 +379,7 @@ public class QTEManager : MonoBehaviour
         timeline.Resume();
         if (timeline.state != PlayState.Playing)
             timeline.Play();
+        TimelineVideoPlayerBehaviour.ResumeAll();
     }
 
     private void FailQTE()
@@ -357,6 +388,7 @@ public class QTEManager : MonoBehaviour
         qteActive = false;
         SetActive(qtePanel, false);
         if (timeline != null) timeline.Pause();
+        TimelineVideoPlayerBehaviour.PauseAll();
         SetActive(gameOverPanel, true);
         EnsureGameOverPresentation();
         GameObject visibleGameOverTitle = GameObject.Find("GameOverText");
