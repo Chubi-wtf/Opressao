@@ -3,24 +3,28 @@
   "WorkspaceRootPath": "C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|c:\\users\\agust\\onedrive\\documentos\\github\\opressao\\opressaounity_\\assets\\scripts\\scenecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\scenecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\QTEManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\QTEManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|c:\\users\\agust\\onedrive\\documentos\\github\\opressao\\opressaounity_\\assets\\scripts\\timelinevideoplayerbehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\timelinevideoplayerbehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|c:\\users\\agust\\onedrive\\documentos\\github\\opressao\\opressaounity_\\assets\\scripts\\qtesignalreceiver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\qtesignalreceiver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|c:\\users\\agust\\onedrive\\documentos\\github\\opressao\\opressaounity_\\assets\\scripts\\qtemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\qtemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|c:\\users\\agust\\onedrive\\documentos\\github\\opressao\\opressaounity_\\assets\\scripts\\qtestartontimelineimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\qtestartontimelineimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|c:\\users\\agust\\onedrive\\documentos\\github\\opressao\\opressaounity_\\assets\\scripts\\scenecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\scenecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:2:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:2:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,11 +34,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "SceneController.cs",
               "DocumentMoniker": "C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\SceneController.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\SceneController.cs",
@@ -47,20 +51,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 2,
               "Title": "QTEStartOnTimelineImage.cs",
               "DocumentMoniker": "C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\QTEStartOnTimelineImage.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\QTEStartOnTimelineImage.cs",
               "ToolTip": "C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\QTEStartOnTimelineImage.cs",
               "RelativeToolTip": "Assets\\Scripts\\QTEStartOnTimelineImage.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAowA4AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-08-31T22:06:31.072Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "QTESignalReceiver.cs",
               "DocumentMoniker": "C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\QTESignalReceiver.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\QTESignalReceiver.cs",
@@ -73,7 +77,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
+              "Title": "QTEManager.cs",
+              "DocumentMoniker": "C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\QTEManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\QTEManager.cs",
+              "ToolTip": "C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\QTEManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\QTEManager.cs",
+              "ViewState": "AgIAANwAAAAAAAAAAAAAABICAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-31T22:06:20.94Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "TimelineVideoPlayerBehaviour.cs",
               "DocumentMoniker": "C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs",
@@ -81,21 +98,20 @@
               "RelativeToolTip": "Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-08-30T23:24:47.756Z",
+              "WhenOpened": "2026-09-01T01:27:09.57Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "QTEManager.cs",
-              "DocumentMoniker": "C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\QTEManager.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\QTEManager.cs",
-              "ToolTip": "C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\QTEManager.cs",
-              "RelativeToolTip": "Assets\\Scripts\\QTEManager.cs",
-              "ViewState": "AgIAACIAAAAAAAAAAAAcwDUAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 5,
+              "Title": "TimelineVideoPlayerBehaviour.cs",
+              "DocumentMoniker": "C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs",
+              "ToolTip": "C:\\Users\\agust\\OneDrive\\Documentos\\GitHub\\Opressao\\OpressaoUnity_\\Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs",
+              "RelativeToolTip": "Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-08-31T22:06:20.94Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-08-30T23:24:47.756Z"
             }
           ]
         }

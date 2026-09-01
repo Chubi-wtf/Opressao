@@ -768,6 +768,7 @@ MonoBehaviour:
   titleText: {fileID: 2003094817}
   instructionText: {fileID: 125262215}
   sequenceText: {fileID: 1468171432}
+  gameOverText: {fileID: 0}
   progressBar: {fileID: 0}
   timerBar: {fileID: 790363925}
   timerContainer: {fileID: 790363924}
@@ -840,6 +841,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5e63caee50007ac4a9a2848368ce0174, type: 2}
   - {fileID: 11400000, guid: fb0abc39ca471c84dac607556655aa7f, type: 2}
   - {fileID: 11400000, guid: 235a21bc0e090eb4fb0cf77c9f9ce6e3, type: 2}
+  - {fileID: 11400000, guid: 5e63caee50007ac4a9a2848368ce0174, type: 2}
 --- !u!1 &790363923
 GameObject:
   m_ObjectHideFlags: 0

@@ -259,7 +259,7 @@ public class QTEManager : MonoBehaviour
         if (keyboard || controller)
         {
             progress += Time.deltaTime;
-            ShowFeedback("✓ BOTONES CORRECTOS", new Color(0.25f, 1f, 0.42f), 0.2f);
+            ShowFeedback("BOTONES CORRECTOS", new Color(0.25f, 1f, 0.42f), 0.2f);
             holdInputWasCorrect = true;
         }
         else
@@ -280,7 +280,7 @@ public class QTEManager : MonoBehaviour
         {
             sequencePosition++;
             progress = sequencePosition;
-            ShowFeedback("✓ CORRECTO", new Color(0.25f, 1f, 0.42f), 0.5f);
+            ShowFeedback("CORRECTO", new Color(0.25f, 1f, 0.42f), 0.5f);
 
             if (sequencePosition < sequence.Count)
                 ShowSequence();
@@ -312,7 +312,7 @@ public class QTEManager : MonoBehaviour
             {
                 accumulatedAngle += angle;
                 progress = accumulatedAngle / 360f;
-                ShowFeedback("✓ GIRO DETECTADO", new Color(0.25f, 1f, 0.42f), 0.35f);
+                ShowFeedback("GIRO CORRECTO", new Color(0.25f, 1f, 0.42f), 0.35f);
             }
         }
 

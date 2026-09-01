@@ -1,10 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-/// <summary>
-/// Añádalo al mismo objeto que activa una Activation Track. Cuando la imagen
-/// aparece, arranca el QTE indicado y el QTEManager pausa el Timeline.
-/// </summary>
+
 public sealed class QTEStartOnTimelineImage : MonoBehaviour
 {
     [SerializeField] private QTEManager qteManager;
