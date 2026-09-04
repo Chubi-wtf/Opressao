@@ -7,6 +7,8 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
 {
     private static readonly HashSet<TimelineVideoPlayerBehaviour> ActivePlayers = new();
 
+    [Range(0.1f, 3f)] [SerializeField] private float playbackSpeed = 1f;
+
     private VideoPlayer videoPlayer;
 
     private void Awake()
@@ -14,6 +16,7 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
         videoPlayer = GetComponent<VideoPlayer>();
         videoPlayer.playOnAwake = false;
         videoPlayer.isLooping = true;
+        videoPlayer.playbackSpeed = playbackSpeed;
     }
 
     private void OnEnable()
@@ -26,6 +29,7 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
         if (videoPlayer == null)
             videoPlayer = GetComponent<VideoPlayer>();
 
+        videoPlayer.playbackSpeed = playbackSpeed;
         videoPlayer.Stop();
         videoPlayer.frame = 0;
         videoPlayer.Play();
@@ -76,6 +80,7 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
         if (videoPlayer == null)
             videoPlayer = GetComponent<VideoPlayer>();
 
+        videoPlayer.playbackSpeed = playbackSpeed;
         if (videoPlayer.clip != null && !videoPlayer.isPlaying)
             videoPlayer.Play();
     }

@@ -10,9 +10,11 @@ public static class QTESignalSetup
 {
     private static readonly double[] SignalTimes =
     {
-        0d,
-        6.1d,
-        18.38d
+        4d,
+        12d,
+        21d,
+        30d,
+        38d
     };
 
     [MenuItem("Tools/Opressao/Configurar Signals de QTE")]
@@ -64,6 +66,7 @@ public static class QTESignalSetup
 
         SerializedObject managerData = new(manager);
         managerData.FindProperty("startFirstQteWithScene").boolValue = false;
+        managerData.FindProperty("successVideoTimes").ClearArray();
         managerData.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(manager);
         EditorUtility.SetDirty(receiver);

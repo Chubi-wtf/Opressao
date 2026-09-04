@@ -14,6 +14,7 @@ public static class CinematicVideoSetup
     private const string VideoFolder = "Assets/Videos";
     private const string GeneratedFolder = "Assets/Videos/Generated";
     private const string RootName = "CinematicVideos";
+    private const string AnimaticName = "ANIMATIC PISADEIRA";
 
     [MenuItem("Tools/Opressao/Integrar videos en Timeline")]
     public static void IntegrateVideos()
@@ -31,11 +32,12 @@ public static class CinematicVideoSetup
         string[] videoPaths = AssetDatabase.FindAssets("t:VideoClip", new[] { VideoFolder })
             .Select(AssetDatabase.GUIDToAssetPath)
             .Where(path => string.Equals(Path.GetExtension(path), ".mp4", StringComparison.OrdinalIgnoreCase))
+            .Where(path => string.Equals(Path.GetFileNameWithoutExtension(path), AnimaticName, StringComparison.OrdinalIgnoreCase))
             .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
         if (videoPaths.Length == 0)
-            throw new InvalidOperationException("No se encontraron archivos MP4 en Assets/Videos.");
+            throw new InvalidOperationException($"No se encontró {AnimaticName}.mp4 en {VideoFolder}.");
 
         EnsureFolder(GeneratedFolder);
 

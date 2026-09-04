@@ -12,7 +12,9 @@ public enum QTEType
 {
     HoldButtons,
     ButtonSequence,
-    RotateStick
+    RotateStick,
+    AlternatingTriggers,
+    RightStickMovement
 }
 
 [Serializable]
@@ -63,6 +65,10 @@ public class QTEManager : MonoBehaviour
     private Text feedbackText;
     private float feedbackExpiresAt;
     private bool holdInputWasCorrect;
+    private bool expectLeftTrigger;
+    private float previousLeftTrigger;
+    private float previousRightTrigger;
+    private string lastMovementPrompt;
 
     private readonly List<FaceButton> sequence = new();
     private int sequencePosition;
@@ -140,6 +146,12 @@ public class QTEManager : MonoBehaviour
             case QTEType.RotateStick:
                 UpdateRotateQTE();
                 break;
+            case QTEType.AlternatingTriggers:
+                UpdateAlternatingTriggerQTE();
+                break;
+            case QTEType.RightStickMovement:
+                UpdateRightStickMovementQTE();
+                break;
         }
 
         UpdateBars();
@@ -167,6 +179,10 @@ public class QTEManager : MonoBehaviour
         previousDirection = Vector2.zero;
         accumulatedAngle = 0f;
         holdInputWasCorrect = false;
+        expectLeftTrigger = true;
+        previousLeftTrigger = 0f;
+        previousRightTrigger = 0f;
+        lastMovementPrompt = string.Empty;
 
         SetActive(gameOverPanel, false);
 
@@ -264,6 +280,18 @@ public class QTEManager : MonoBehaviour
                 SetText(sequenceText, "↻");
                 ShowFeedback("COMPLETA UN GIRO", new Color(1f, 0.82f, 0.18f), 10f);
                 break;
+
+            case QTEType.AlternatingTriggers:
+                SetText(instructionText, "Alterna L2 y R2\nTeclado: Q y E alternados");
+                SetText(sequenceText, "L2");
+                ShowFeedback("SIGUE EL RITMO", new Color(1f, 0.82f, 0.18f), 10f);
+                break;
+
+            case QTEType.RightStickMovement:
+                SetText(instructionText, "Mueve el análogo derecho\nTeclado: flechas");
+                SetText(sequenceText, "MUEVE");
+                ShowFeedback("ACTIVA EL MOVIMIENTO", new Color(1f, 0.82f, 0.18f), 10f);
+                break;
         }
     }
 
@@ -338,6 +366,58 @@ public class QTEManager : MonoBehaviour
         }
 
         previousDirection = direction;
+    }
+
+    private void UpdateAlternatingTriggerQTE()
+    {
+        bool leftPressed = Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame;
+        bool rightPressed = Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame;
+
+        if (Gamepad.current != null)
+        {
+            float left = Gamepad.current.leftTrigger.ReadValue();
+            float right = Gamepad.current.rightTrigger.ReadValue();
+            leftPressed |= left > 0.65f && previousLeftTrigger <= 0.65f;
+            rightPressed |= right > 0.65f && previousRightTrigger <= 0.65f;
+            previousLeftTrigger = left;
+            previousRightTrigger = right;
+        }
+
+        if (!leftPressed && !rightPressed)
+            return;
+
+        bool correct = expectLeftTrigger ? leftPressed && !rightPressed : rightPressed && !leftPressed;
+        if (correct)
+        {
+            progress++;
+            expectLeftTrigger = !expectLeftTrigger;
+            SetText(sequenceText, expectLeftTrigger ? "L2" : "R2");
+            ShowFeedback("CORRECTO", new Color(0.25f, 1f, 0.42f), 0.45f);
+            return;
+        }
+
+        progress = Mathf.Max(0f, progress - 1f);
+        ShowFeedback("RITMO INCORRECTO", new Color(1f, 0.38f, 0.32f), 0.8f);
+    }
+
+    private void UpdateRightStickMovementQTE()
+    {
+        Vector2 movement = ReadRightStickMovement();
+        if (movement.magnitude >= 0.65f)
+        {
+            progress += Time.deltaTime;
+            string movementPrompt = MovementPrompt(movement);
+            if (movementPrompt != lastMovementPrompt)
+            {
+                lastMovementPrompt = movementPrompt;
+                SetText(sequenceText, movementPrompt);
+            }
+            ShowFeedback("MOVIMIENTO DETECTADO", new Color(0.25f, 1f, 0.42f), 0.2f);
+            return;
+        }
+
+        progress = Mathf.Max(0f, progress - Time.deltaTime * 0.35f);
+        ShowFeedback("MUEVE EL ANÁLOGO DERECHO", new Color(1f, 0.82f, 0.18f), 0.2f);
     }
 
     private void CompleteQTE()
@@ -556,7 +636,7 @@ public class QTEManager : MonoBehaviour
         RectTransform prompt = sequenceText.rectTransform;
         prompt.anchorMin = prompt.anchorMax = new Vector2(0.5f, 0.5f);
         prompt.pivot = new Vector2(0.5f, 0.5f);
-        prompt.anchoredPosition = new Vector2(0f, -20f);
+        prompt.anchoredPosition = new Vector2(0f, 60f);
         prompt.sizeDelta = new Vector2(760f, 120f);
         sequenceText.alignment = TextAnchor.MiddleCenter;
         sequenceText.fontSize = 32;
@@ -603,6 +683,34 @@ public class QTEManager : MonoBehaviour
         if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed) direction.x--;
         if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed) direction.x++;
         return direction.normalized;
+    }
+
+    private static Vector2 ReadRightStickMovement()
+    {
+        if (Gamepad.current != null)
+        {
+            Vector2 rightStick = Gamepad.current.rightStick.ReadValue();
+            if (rightStick.sqrMagnitude >= 0.65f * 0.65f)
+                return rightStick;
+        }
+
+        if (Keyboard.current == null)
+            return Vector2.zero;
+
+        Vector2 direction = Vector2.zero;
+        if (Keyboard.current.upArrowKey.isPressed) direction.y++;
+        if (Keyboard.current.downArrowKey.isPressed) direction.y--;
+        if (Keyboard.current.leftArrowKey.isPressed) direction.x--;
+        if (Keyboard.current.rightArrowKey.isPressed) direction.x++;
+        return direction.normalized;
+    }
+
+    private static string MovementPrompt(Vector2 movement)
+    {
+        if (Mathf.Abs(movement.x) > Mathf.Abs(movement.y))
+            return movement.x > 0f ? "MUEVE  →" : "MUEVE  ←";
+
+        return movement.y > 0f ? "MUEVE  ↑" : "MUEVE  ↓";
     }
 
     private static string ButtonName(FaceButton button) => button switch
