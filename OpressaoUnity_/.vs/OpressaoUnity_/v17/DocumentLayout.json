@@ -7,20 +7,32 @@
       "RelativeMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\qtemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|c:\\users\\alumno\\documents\\unity projects\\opress\u00E3o\\opressaounity_\\assets\\scripts\\mainmenucreditscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\mainmenucreditscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\assets\\scripts\\qtesignalreceiver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\qtesignalreceiver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\assets\\scripts\\scenecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\scenecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\assets\\scripts\\timelinevideoplayerbehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\timelinevideoplayerbehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|c:\\users\\alumno\\documents\\unity projects\\opress\u00E3o\\opressaounity_\\assets\\scripts\\pausemenucontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\pausemenucontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\assets\\scripts\\qtestartontimelineimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\qtestartontimelineimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\assets\\scripts\\qtesignalreceiver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\qtesignalreceiver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\assets\\scripts\\timelinevideoplayerbehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\timelinevideoplayerbehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|c:\\users\\alumno\\documents\\unity projects\\opress\u00E3o\\opressaounity_\\assets\\scripts\\introinstructionscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1AD89C4F-86A3-D4BE-1639-6237B93A2545}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\introinstructionscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,11 +42,50 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MainMenuCreditsController.cs",
+              "DocumentMoniker": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\MainMenuCreditsController.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\MainMenuCreditsController.cs",
+              "ToolTip": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\MainMenuCreditsController.cs",
+              "RelativeToolTip": "Assets\\Scripts\\MainMenuCreditsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-04T13:17:49.398Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 4,
+              "Title": "PauseMenuController.cs",
+              "DocumentMoniker": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\PauseMenuController.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\PauseMenuController.cs",
+              "ToolTip": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\PauseMenuController.cs",
+              "RelativeToolTip": "Assets\\Scripts\\PauseMenuController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-04T13:17:45.509Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "IntroInstructionsController.cs",
+              "DocumentMoniker": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\IntroInstructionsController.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\IntroInstructionsController.cs",
+              "ToolTip": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\IntroInstructionsController.cs",
+              "RelativeToolTip": "Assets\\Scripts\\IntroInstructionsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-04T13:17:41.439Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "QTESignalReceiver.cs",
               "DocumentMoniker": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\QTESignalReceiver.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\QTESignalReceiver.cs",
@@ -47,7 +98,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "QTEStartOnTimelineImage.cs",
               "DocumentMoniker": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\QTEStartOnTimelineImage.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\QTEStartOnTimelineImage.cs",
@@ -60,20 +111,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 6,
               "Title": "TimelineVideoPlayerBehaviour.cs",
               "DocumentMoniker": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs",
               "ToolTip": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs",
               "RelativeToolTip": "Assets\\Scripts\\TimelineVideoPlayerBehaviour.cs",
-              "ViewState": "AgIAAEEAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAEMAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-09-01T13:04:43.81Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "SceneController.cs",
               "DocumentMoniker": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\SceneController.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\SceneController.cs",
@@ -92,7 +143,7 @@
               "RelativeDocumentMoniker": "Assets\\Scripts\\QTEManager.cs",
               "ToolTip": "C:\\Users\\Alumno\\Documents\\Unity Projects\\Opress\u00E3o\\OpressaoUnity_\\Assets\\Scripts\\QTEManager.cs",
               "RelativeToolTip": "Assets\\Scripts\\QTEManager.cs",
-              "ViewState": "AgIAAFMCAAAAAAAAAAAYwHoCAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAgDAAAAAAAAAAAewA0DAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-08-28T13:06:28.769Z",
               "EditorCaption": ""

@@ -1242,7 +1242,7 @@ public class QTEManager : MonoBehaviour
             if (Gamepad.current.buttonWest.wasPressedThisFrame) return FaceButton.West;
             if (Gamepad.current.buttonNorth.wasPressedThisFrame) return FaceButton.North;
         }
-
+        
         return null;
     }
 
