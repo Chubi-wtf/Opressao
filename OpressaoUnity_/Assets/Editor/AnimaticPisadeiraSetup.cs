@@ -19,10 +19,10 @@ public static class AnimaticPisadeiraSetup
 
         ConfigureQte(qtes.GetArrayElementAtIndex(0), "Forcejeo inicial", QTEType.ButtonSequence, 6f, 4f);
         ConfigureQte(qtes.GetArrayElementAtIndex(1), "Control de respiración", QTEType.HoldButtons, 6.5f, 3.5f, true);
-        ConfigureQte(qtes.GetArrayElementAtIndex(2), "Forcejeo desesperado", QTEType.AlternatingTriggers, 7f, 8f);
-        ConfigureQte(qtes.GetArrayElementAtIndex(3), "Muévete antes de que llegue", QTEType.RightStickMovement, 6f, 2.5f);
+        ConfigureQte(qtes.GetArrayElementAtIndex(2), "Forcejeo desesperado", QTEType.RotateStick, 10f, 1.5f);
+        ConfigureQte(qtes.GetArrayElementAtIndex(3), "Muévete antes de que llegue", QTEType.DPadMovement, 6f, 1.75f);
         ConfigureQte(qtes.GetArrayElementAtIndex(4), "Abre la puerta", QTEType.LeftStickLeft, 5f, 1.25f);
-        ConfigureQte(qtes.GetArrayElementAtIndex(5), "Control de respiración", QTEType.HoldButtons, 6.5f, 3.5f);
+        ConfigureQte(qtes.GetArrayElementAtIndex(5), "Es un sueño, es un sueño.", QTEType.HoldButtons, 6.5f, 3.5f);
 
         data.FindProperty("successVideoTimes").ClearArray();
         data.FindProperty("startFirstQteWithScene").boolValue = false;
