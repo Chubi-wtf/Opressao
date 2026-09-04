@@ -500,12 +500,6 @@ PlayableDirector:
   m_DirectorUpdateMode: 1
   m_InitialTime: 0
   m_SceneBindings:
-  - key: {fileID: -4453798125988624890, guid: 3f11378f17adae54ca8fd9d4e633c9be, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: -3679926414924554403, guid: 3f11378f17adae54ca8fd9d4e633c9be, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: 3376841179839368563, guid: 3f11378f17adae54ca8fd9d4e633c9be, type: 2}
-    value: {fileID: 0}
   - key: {fileID: 0}
     value: {fileID: 0}
   - key: {fileID: 0}
@@ -516,8 +510,18 @@ PlayableDirector:
     value: {fileID: 717743240}
   - key: {fileID: 0}
     value: {fileID: 0}
-  - key: {fileID: 3223597680966429888, guid: 3f11378f17adae54ca8fd9d4e633c9be, type: 2}
-    value: {fileID: 1648257332}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 6406097842148321863, guid: 3f11378f17adae54ca8fd9d4e633c9be, type: 2}
+    value: {fileID: 1568608832}
   m_ExposedReferences:
     m_References: []
 --- !u!4 &390146859
@@ -656,6 +660,42 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
+--- !u!1 &637674707
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 637674708}
+  m_Layer: 0
+  m_Name: CinematicVideos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &637674708
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 637674707}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1568608833}
+  m_Father: {fileID: 797370578}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &717743237
 GameObject:
   m_ObjectHideFlags: 0
@@ -706,6 +746,7 @@ MonoBehaviour:
     type: 1
     timeLimit: 6
     requiredAmount: 4
+    continuous: 0
     onSuccess:
       m_PersistentCalls:
         m_Calls: []
@@ -716,6 +757,7 @@ MonoBehaviour:
     type: 0
     timeLimit: 6.5
     requiredAmount: 3.5
+    continuous: 0
     onSuccess:
       m_PersistentCalls:
         m_Calls: []
@@ -726,6 +768,7 @@ MonoBehaviour:
     type: 3
     timeLimit: 7
     requiredAmount: 8
+    continuous: 0
     onSuccess:
       m_PersistentCalls:
         m_Calls: []
@@ -736,6 +779,18 @@ MonoBehaviour:
     type: 4
     timeLimit: 6
     requiredAmount: 2.5
+    continuous: 0
+    onSuccess:
+      m_PersistentCalls:
+        m_Calls: []
+    onFailure:
+      m_PersistentCalls:
+        m_Calls: []
+  - title: Abre la puerta
+    type: 5
+    timeLimit: 5
+    requiredAmount: 1.25
+    continuous: 0
     onSuccess:
       m_PersistentCalls:
         m_Calls: []
@@ -746,6 +801,7 @@ MonoBehaviour:
     type: 0
     timeLimit: 6.5
     requiredAmount: 3.5
+    continuous: 0
     onSuccess:
       m_PersistentCalls:
         m_Calls: []
@@ -785,11 +841,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   qteManager: {fileID: 717743238}
   qteSignals:
-  - {fileID: 11400000, guid: 5e63caee50007ac4a9a2848368ce0174, type: 2}
-  - {fileID: 11400000, guid: fb0abc39ca471c84dac607556655aa7f, type: 2}
+  - {fileID: 11400000, guid: 054a00df4179a3542a227b9e7b99e99a, type: 2}
+  - {fileID: 11400000, guid: c1e9163c2044a724bb5e86004f8ec893, type: 2}
   - {fileID: 11400000, guid: 235a21bc0e090eb4fb0cf77c9f9ce6e3, type: 2}
   - {fileID: 11400000, guid: bfd1944de8b486545a396f366450db6b, type: 2}
   - {fileID: 11400000, guid: 41c5d1554f1383446ac27c1fd81b61c6, type: 2}
+  - {fileID: 11400000, guid: 61d3fec1b6f0eb543a8c43ad4b4931b0, type: 2}
 --- !u!1 &790363923
 GameObject:
   m_ObjectHideFlags: 0
@@ -961,7 +1018,7 @@ RectTransform:
   m_Children:
   - {fileID: 2012543522}
   - {fileID: 1763965620}
-  - {fileID: 1676519255}
+  - {fileID: 637674708}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1435,7 +1492,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1468171430}
   m_CullTransparentMesh: 1
---- !u!1 &1648257332
+--- !u!1 &1568608832
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1443,13 +1500,13 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1648257333}
-  - component: {fileID: 1648257339}
-  - component: {fileID: 1648257338}
-  - component: {fileID: 1648257337}
-  - component: {fileID: 1648257336}
-  - component: {fileID: 1648257335}
-  - component: {fileID: 1648257334}
+  - component: {fileID: 1568608833}
+  - component: {fileID: 1568608839}
+  - component: {fileID: 1568608838}
+  - component: {fileID: 1568608837}
+  - component: {fileID: 1568608836}
+  - component: {fileID: 1568608835}
+  - component: {fileID: 1568608834}
   m_Layer: 0
   m_Name: Video_ANIMATIC_PISADEIRA
   m_TagString: Untagged
@@ -1457,45 +1514,45 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!224 &1648257333
+--- !u!224 &1568608833
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1648257332}
+  m_GameObject: {fileID: 1568608832}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1676519255}
+  m_Father: {fileID: 637674708}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: -17.952759}
+  m_SizeDelta: {x: 0, y: -446.01917}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1648257334
+--- !u!114 &1568608834
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1648257332}
+  m_GameObject: {fileID: 1568608832}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f64c958541304af40b1bd2226b5b645e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   playbackSpeed: 1
---- !u!82 &1648257335
+--- !u!82 &1568608835
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1648257332}
+  m_GameObject: {fileID: 1568608832}
   m_Enabled: 0
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
@@ -1586,13 +1643,13 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!328 &1648257336
+--- !u!328 &1568608836
 VideoPlayer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1648257332}
+  m_GameObject: {fileID: 1568608832}
   m_Enabled: 1
   m_VideoClip: {fileID: 32900000, guid: a067b68597f056d438dc4a00fb45d311, type: 3}
   m_TargetCameraAlpha: 1
@@ -1605,7 +1662,7 @@ VideoPlayer:
   m_RenderMode: 2
   m_AspectRatio: 2
   m_DataSource: 0
-  m_TimeUpdateMode: 2
+  m_TimeUpdateMode: 1
   m_PlaybackSpeed: 1
   m_AudioOutputMode: 1
   m_TargetAudioSources: []
@@ -1614,19 +1671,19 @@ VideoPlayer:
   m_EnabledAudioTracks: 
   m_DirectAudioMutes: 
   m_ControlledAudioTrackCount: 0
-  m_PlayOnAwake: 0
+  m_PlayOnAwake: 1
   m_SkipOnDrop: 1
   m_Looping: 0
   m_WaitForFirstFrame: 1
   m_FrameReadyEventEnabled: 0
   m_VideoShaders: []
---- !u!114 &1648257337
+--- !u!114 &1568608837
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1648257332}
+  m_GameObject: {fileID: 1568608832}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
@@ -1634,13 +1691,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_AspectMode: 3
   m_AspectRatio: 1.7777778
---- !u!114 &1648257338
+--- !u!114 &1568608838
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1648257332}
+  m_GameObject: {fileID: 1568608832}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
@@ -1661,50 +1718,14 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
---- !u!222 &1648257339
+--- !u!222 &1568608839
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1648257332}
+  m_GameObject: {fileID: 1568608832}
   m_CullTransparentMesh: 1
---- !u!1 &1676519254
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1676519255}
-  m_Layer: 0
-  m_Name: CinematicVideos
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1676519255
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1676519254}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1648257333}
-  m_Father: {fileID: 797370578}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1763965619
 GameObject:
   m_ObjectHideFlags: 0

@@ -15,7 +15,7 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
     {
         videoPlayer = GetComponent<VideoPlayer>();
         videoPlayer.playOnAwake = false;
-        videoPlayer.isLooping = true;
+        videoPlayer.isLooping = false;
         videoPlayer.playbackSpeed = playbackSpeed;
     }
 
@@ -30,9 +30,11 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
             videoPlayer = GetComponent<VideoPlayer>();
 
         videoPlayer.playbackSpeed = playbackSpeed;
-        videoPlayer.Stop();
-        videoPlayer.frame = 0;
-        videoPlayer.Play();
+        if (!videoPlayer.isPrepared)
+            videoPlayer.Prepare();
+
+        if (videoPlayer.clip != null && videoPlayer.time <= 0.01d && !videoPlayer.isPlaying)
+            videoPlayer.Play();
     }
 
     private void OnDisable()
@@ -81,7 +83,7 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
             videoPlayer = GetComponent<VideoPlayer>();
 
         videoPlayer.playbackSpeed = playbackSpeed;
-        if (videoPlayer.clip != null && !videoPlayer.isPlaying)
+        if (videoPlayer.clip != null && videoPlayer.time < videoPlayer.clip.length - 0.05d && !videoPlayer.isPlaying)
             videoPlayer.Play();
     }
 

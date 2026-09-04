@@ -14,7 +14,18 @@ public static class QTESignalSetup
         12d,
         21d,
         30d,
+        34d,
         38d
+    };
+
+    private static readonly string[] SignalNames =
+    {
+        "Forcejeo inicial",
+        "Contener la respiración",
+        "Forcejeo desesperado",
+        "Moverse antes de que llegue",
+        "Abrir puerta",
+        "Respiración final"
     };
 
     [MenuItem("Tools/Opressao/Configurar Signals de QTE")]
@@ -50,7 +61,11 @@ public static class QTESignalSetup
                 AssetDatabase.CreateAsset(asset, path);
             }
 
+            asset.name = SignalNames[index];
+            EditorUtility.SetDirty(asset);
+
             SignalEmitter marker = track.CreateMarker<SignalEmitter>(SignalTimes[index]);
+            marker.name = SignalNames[index];
             marker.asset = asset;
             marker.retroactive = true;
             marker.emitOnce = true;

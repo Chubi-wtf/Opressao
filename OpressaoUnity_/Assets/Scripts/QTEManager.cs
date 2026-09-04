@@ -14,7 +14,8 @@ public enum QTEType
     ButtonSequence,
     RotateStick,
     AlternatingTriggers,
-    RightStickMovement
+    RightStickMovement,
+    LeftStickLeft
 }
 
 [Serializable]
@@ -24,6 +25,7 @@ public class QTEConfig
     public QTEType type;
     [Min(1f)] public float timeLimit = 6f;
     [Min(1f)] public float requiredAmount = 4f;
+    public bool continuous;
     public UnityEvent onSuccess;
     public UnityEvent onFailure;
 }
@@ -69,6 +71,13 @@ public class QTEManager : MonoBehaviour
     private float previousLeftTrigger;
     private float previousRightTrigger;
     private string lastMovementPrompt;
+    private QTEConfig backgroundBreathingQTE;
+    private bool backgroundBreathingActive;
+    private float backgroundReleaseTime;
+    private float backgroundReleaseLimit;
+    private GameObject breathingPanel;
+    private Text breathingStatusText;
+    private Image breathingBar;
 
     private readonly List<FaceButton> sequence = new();
     private int sequencePosition;
@@ -89,6 +98,7 @@ public class QTEManager : MonoBehaviour
         EnsureQteOverlayCanvas();
         EnsureGameOverPresentation();
         EnsureFeedbackVisual();
+        EnsureBreathingOverlay();
     }
 
     private IEnumerator Start()
@@ -118,6 +128,9 @@ public class QTEManager : MonoBehaviour
 
     private void Update()
     {
+        if (backgroundBreathingActive)
+            UpdateBackgroundBreathing();
+
         if (!qteActive) return;
 
 #if UNITY_EDITOR
@@ -152,6 +165,9 @@ public class QTEManager : MonoBehaviour
             case QTEType.RightStickMovement:
                 UpdateRightStickMovementQTE();
                 break;
+            case QTEType.LeftStickLeft:
+                UpdateLeftStickLeftQTE();
+                break;
         }
 
         UpdateBars();
@@ -185,6 +201,13 @@ public class QTEManager : MonoBehaviour
         lastMovementPrompt = string.Empty;
 
         SetActive(gameOverPanel, false);
+
+        if (currentQTE.continuous)
+        {
+            qteActive = false;
+            StartBackgroundBreathing(currentQTE);
+            return;
+        }
 
         Trace($"Inicio QTE {index + 1}/{qtes.Count}: {currentQTE.title}. Límite: {currentQTE.timeLimit:0.##} s.");
 
@@ -225,6 +248,7 @@ public class QTEManager : MonoBehaviour
 
     public void RetryQTE()
     {
+        StopBackgroundBreathing();
         qteActive = false;
         currentQTE = null;
         currentIndex = -1;
@@ -291,6 +315,12 @@ public class QTEManager : MonoBehaviour
                 SetText(instructionText, "Mueve el análogo derecho\nTeclado: flechas");
                 SetText(sequenceText, "MUEVE");
                 ShowFeedback("ACTIVA EL MOVIMIENTO", new Color(1f, 0.82f, 0.18f), 10f);
+                break;
+
+            case QTEType.LeftStickLeft:
+                SetText(instructionText, "Mueve el análogo izquierdo hacia la izquierda\nTeclado: A");
+                SetText(sequenceText, "←");
+                ShowFeedback("ABRE LA PUERTA", new Color(1f, 0.82f, 0.18f), 10f);
                 break;
         }
     }
@@ -420,6 +450,21 @@ public class QTEManager : MonoBehaviour
         ShowFeedback("MUEVE EL ANÁLOGO DERECHO", new Color(1f, 0.82f, 0.18f), 0.2f);
     }
 
+    private void UpdateLeftStickLeftQTE()
+    {
+        bool controller = Gamepad.current != null && Gamepad.current.leftStick.ReadValue().x < -0.65f;
+        bool keyboard = Keyboard.current != null && Keyboard.current.aKey.isPressed;
+        if (controller || keyboard)
+        {
+            progress += Time.deltaTime;
+            ShowFeedback("PUERTA ABRIENDO", new Color(0.25f, 1f, 0.42f), 0.2f);
+            return;
+        }
+
+        progress = Mathf.Max(0f, progress - Time.deltaTime * 0.35f);
+        ShowFeedback("MUEVE A LA IZQUIERDA", new Color(1f, 0.82f, 0.18f), 0.2f);
+    }
+
     private void CompleteQTE()
     {
         int completedIndex = currentIndex;
@@ -430,7 +475,11 @@ public class QTEManager : MonoBehaviour
 
         ContinueAtNextVideo();
 
-        if (completedIndex == qtes.Count - 1) onAllQtesCompleted?.Invoke();
+        if (completedIndex == qtes.Count - 1)
+        {
+            StopBackgroundBreathing();
+            onAllQtesCompleted?.Invoke();
+        }
     }
 
     private void ContinueAtNextVideo()
@@ -465,6 +514,7 @@ public class QTEManager : MonoBehaviour
     private void FailQTE()
     {
         Trace($"QTE {currentIndex + 1} fallado por tiempo.");
+        StopBackgroundBreathing();
         qteActive = false;
         SetActive(qtePanel, false);
         if (timeline != null) timeline.Pause();
@@ -476,6 +526,63 @@ public class QTEManager : MonoBehaviour
             visibleText.text = "QTE FALLIDO";
         gameOverPanel.transform.SetAsLastSibling();
         currentQTE.onFailure?.Invoke();
+    }
+
+    private void StartBackgroundBreathing(QTEConfig qte)
+    {
+        backgroundBreathingQTE = qte;
+        backgroundBreathingActive = true;
+        backgroundReleaseTime = 0f;
+        backgroundReleaseLimit = Mathf.Max(0.75f, qte.requiredAmount * 0.35f);
+        SetActive(breathingPanel, true);
+        SetBreathingStatus("MANTÉN L2 + R2", new Color(1f, 0.82f, 0.18f));
+        Trace("Respiración continua activada.");
+    }
+
+    private void UpdateBackgroundBreathing()
+    {
+        bool keyboard = Keyboard.current != null && Keyboard.current.qKey.isPressed && Keyboard.current.eKey.isPressed;
+        bool controller = Gamepad.current != null &&
+                          Gamepad.current.leftTrigger.ReadValue() > 0.65f &&
+                          Gamepad.current.rightTrigger.ReadValue() > 0.65f;
+
+        if (keyboard || controller)
+        {
+            backgroundReleaseTime = 0f;
+            SetBreathingStatus("RESPIRACIÓN CONTROLADA", new Color(0.25f, 1f, 0.42f));
+        }
+        else
+        {
+            backgroundReleaseTime += Time.deltaTime;
+            SetBreathingStatus("MANTÉN L2 + R2", new Color(1f, 0.82f, 0.18f));
+        }
+
+        if (breathingBar != null)
+            breathingBar.fillAmount = 1f - Mathf.Clamp01(backgroundReleaseTime / backgroundReleaseLimit);
+
+        if (backgroundReleaseTime >= backgroundReleaseLimit)
+            FailBackgroundBreathing();
+    }
+
+    private void FailBackgroundBreathing()
+    {
+        Trace("Respiración continua fallada.");
+        backgroundBreathingQTE?.onFailure?.Invoke();
+        StopBackgroundBreathing();
+        qteActive = false;
+        SetActive(qtePanel, false);
+        if (timeline != null) timeline.Pause();
+        TimelineVideoPlayerBehaviour.PauseAll();
+        SetActive(gameOverPanel, true);
+        EnsureGameOverPresentation();
+        gameOverPanel.transform.SetAsLastSibling();
+    }
+
+    private void StopBackgroundBreathing()
+    {
+        backgroundBreathingActive = false;
+        backgroundBreathingQTE = null;
+        SetActive(breathingPanel, false);
     }
 
     private void UpdateBars()
@@ -592,6 +699,76 @@ public class QTEManager : MonoBehaviour
         rect.anchoredPosition = new Vector2(0f, -250f);
         rect.sizeDelta = new Vector2(700f, 48f);
         item.SetActive(false);
+    }
+
+    private void EnsureBreathingOverlay()
+    {
+        if (qtePanel == null || breathingPanel != null)
+            return;
+
+        breathingPanel = new GameObject("QTE_RespiracionContinua", typeof(RectTransform), typeof(Canvas), typeof(CanvasRenderer));
+        breathingPanel.transform.SetParent(qtePanel.transform.parent, false);
+        Canvas canvas = breathingPanel.GetComponent<Canvas>();
+        canvas.overrideSorting = true;
+        canvas.sortingOrder = 101;
+
+        RectTransform panelRect = breathingPanel.GetComponent<RectTransform>();
+        panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 1f);
+        panelRect.pivot = new Vector2(0.5f, 1f);
+        panelRect.anchoredPosition = new Vector2(0f, -48f);
+        panelRect.sizeDelta = new Vector2(600f, 80f);
+
+        Text title = CreateUiText("Titulo", panelRect, 24, TextAnchor.UpperCenter);
+        title.text = "CONTÉN LA RESPIRACIÓN";
+        title.rectTransform.anchoredPosition = new Vector2(0f, -14f);
+        title.rectTransform.sizeDelta = new Vector2(600f, 30f);
+
+        breathingStatusText = CreateUiText("Estado", panelRect, 18, TextAnchor.MiddleCenter);
+        breathingStatusText.rectTransform.anchoredPosition = new Vector2(0f, -42f);
+        breathingStatusText.rectTransform.sizeDelta = new Vector2(600f, 24f);
+
+        RectTransform barBackground = CreateUiImage("Barra", panelRect, new Color(0f, 0f, 0f, 0.8f));
+        barBackground.anchorMin = barBackground.anchorMax = new Vector2(0.5f, 0.5f);
+        barBackground.anchoredPosition = new Vector2(0f, -68f);
+        barBackground.sizeDelta = new Vector2(420f, 12f);
+
+        GameObject bar = new GameObject("Progreso", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        bar.transform.SetParent(barBackground, false);
+        breathingBar = bar.GetComponent<Image>();
+        breathingBar.color = new Color(0.25f, 1f, 0.42f);
+        breathingBar.type = Image.Type.Filled;
+        breathingBar.fillMethod = Image.FillMethod.Horizontal;
+        breathingBar.fillOrigin = 0;
+        breathingBar.fillAmount = 1f;
+        RectTransform barRect = breathingBar.rectTransform;
+        barRect.anchorMin = Vector2.zero;
+        barRect.anchorMax = Vector2.one;
+        barRect.sizeDelta = Vector2.zero;
+        barRect.anchoredPosition = Vector2.zero;
+
+        SetActive(breathingPanel, false);
+    }
+
+    private static Text CreateUiText(string objectName, Transform parent, int fontSize, TextAnchor alignment)
+    {
+        GameObject item = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+        item.transform.SetParent(parent, false);
+        Text text = item.GetComponent<Text>();
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.fontSize = fontSize;
+        text.fontStyle = FontStyle.Bold;
+        text.alignment = alignment;
+        text.raycastTarget = false;
+        return text;
+    }
+
+    private void SetBreathingStatus(string message, Color color)
+    {
+        if (breathingStatusText == null)
+            return;
+
+        breathingStatusText.text = message;
+        breathingStatusText.color = color;
     }
 
     private void ShowFeedback(string message, Color color, float duration)
