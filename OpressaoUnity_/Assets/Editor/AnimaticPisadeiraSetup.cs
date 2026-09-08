@@ -22,7 +22,7 @@ public static class AnimaticPisadeiraSetup
         ConfigureQte(qtes.GetArrayElementAtIndex(2), "Forcejeo desesperado", QTEType.RotateStick, 10f, 1.5f);
         ConfigureQte(qtes.GetArrayElementAtIndex(3), "Muévete antes de que llegue", QTEType.DPadMovement, 6f, 1.75f);
         ConfigureQte(qtes.GetArrayElementAtIndex(4), "Abre la puerta", QTEType.RotateLeftStick, 5f, 1f);
-        ConfigureQte(qtes.GetArrayElementAtIndex(5), "Abre la ventana", QTEType.LeftStickLeft, 5f, 2f);
+        ConfigureQte(qtes.GetArrayElementAtIndex(5), "Abre la ventana", QTEType.LeftStickLeft, 5f, 1f);
         ConfigureQte(qtes.GetArrayElementAtIndex(6), "Es un sueño, es un sueño.", QTEType.HoldButtons, 6.5f, 3.5f);
 
         data.FindProperty("successVideoTimes").ClearArray();

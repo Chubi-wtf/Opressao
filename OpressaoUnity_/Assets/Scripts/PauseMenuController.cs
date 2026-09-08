@@ -7,6 +7,7 @@ using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+[DefaultExecutionOrder(-200)]
 public sealed class PauseMenuController : MonoBehaviour
 {
     private const string PausePanelName = "PanelPausa";
@@ -17,18 +18,34 @@ public sealed class PauseMenuController : MonoBehaviour
     private readonly List<PlayableDirector> pausedDirectors = new();
     private readonly List<RaycastResult> uiRaycastResults = new();
     private bool isPaused;
-    private bool qteWasActive;
+    private int resumedFrame = -1;
+    public bool IsPaused => isPaused;
+    public bool BlocksGameplayInput => isPaused || resumedFrame == Time.frameCount;
     private float previousTimeScale = 1f;
     private bool previousAudioPause;
     private bool previousCursorVisible;
     private CursorLockMode previousCursorLockMode;
+    private QTEManager qteManager;
 
     [SerializeField, Min(100f)] private float pauseCursorSpeed = 1100f;
 
-    public static void EnsureOn(GameObject owner)
+    public static PauseMenuController EnsureOn(GameObject owner)
     {
-        if (owner != null && owner.GetComponent<PauseMenuController>() == null)
-            owner.AddComponent<PauseMenuController>();
+        if (owner == null) return null;
+        // The saved scene can already place this controller on a different object.
+        // Creating another listener would pause twice and restore timeScale to zero.
+        foreach (PauseMenuController candidate in FindObjectsByType<PauseMenuController>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            if (candidate.gameObject.scene == owner.scene)
+                return candidate;
+        return owner.AddComponent<PauseMenuController>();
+    }
+
+    private QTEManager ResolveManager()
+    {
+        if (qteManager != null) return qteManager;
+        foreach (QTEManager candidate in FindObjectsByType<QTEManager>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            if (candidate.gameObject.scene == gameObject.scene) { qteManager = candidate; break; }
+        return qteManager;
     }
 
     private void Start()
@@ -63,6 +80,11 @@ public sealed class PauseMenuController : MonoBehaviour
 
     public void PauseGame()
     {
+        // UI callbacks and controller input can both request pause on the same frame.
+        // Never overwrite the original playback snapshot with an already-paused one.
+        if (isPaused) return;
+        QTEManager manager = ResolveManager();
+        if (manager != null && !manager.HasGameStarted) return;
         ResolvePanels();
         if (pausePanel == null)
             return;
@@ -72,7 +94,6 @@ public sealed class PauseMenuController : MonoBehaviour
         previousAudioPause = AudioListener.pause;
         previousCursorVisible = Cursor.visible;
         previousCursorLockMode = Cursor.lockState;
-        qteWasActive = GetComponent<QTEManager>() != null && GetComponent<QTEManager>().IsQteActive;
 
         pausedDirectors.Clear();
         foreach (PlayableDirector director in FindObjectsByType<PlayableDirector>(FindObjectsSortMode.None))
@@ -91,6 +112,7 @@ public sealed class PauseMenuController : MonoBehaviour
         Cursor.visible = true;
         SetPanelActive(pausePanel, true);
         SetPanelActive(optionsPanel, false);
+        TracePause($"Paused; captured {pausedDirectors.Count} playing director(s); previous timeScale={previousTimeScale:0.##}.");
     }
 
     public void ResumeGame()
@@ -104,21 +126,31 @@ public sealed class PauseMenuController : MonoBehaviour
         AudioListener.pause = previousAudioPause;
         Cursor.lockState = previousCursorLockMode;
         Cursor.visible = previousCursorVisible;
+        isPaused = false;
+        resumedFrame = Time.frameCount;
 
-        if (!qteWasActive)
+        QTEManager manager = ResolveManager();
+        if (manager == null || manager.CanAdvanceCinematic)
         {
             foreach (PlayableDirector director in pausedDirectors)
             {
                 if (director != null)
-                    director.Play();
+                {
+                    if (director.playableGraph.IsValid()) director.Resume();
+                    else director.Play();
+                }
             }
 
             TimelineVideoPlayerBehaviour.ResumeAll();
         }
 
         pausedDirectors.Clear();
-        isPaused = false;
+        TracePause($"Resumed; timeScale={Time.timeScale:0.##}; cinematic allowed={manager == null || manager.CanAdvanceCinematic}.");
     }
+
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    [System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
+    private static void TracePause(string message) => Debug.Log("[Pause] " + message);
 
     private void MoveCursorWithLeftStick()
     {
@@ -171,6 +203,8 @@ public sealed class PauseMenuController : MonoBehaviour
     {
         if (!isPaused)
             PauseGame();
+
+        if (!isPaused) return;
 
         SetPanelActive(pausePanel, false);
         SetPanelActive(optionsPanel, true);

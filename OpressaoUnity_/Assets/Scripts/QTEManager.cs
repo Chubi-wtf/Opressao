@@ -32,10 +32,12 @@ public class QTEConfig
     public UnityEvent onSuccess;
     public UnityEvent onFailure;
 }
-public class QTEManager : MonoBehaviour
+public partial class QTEManager : MonoBehaviour
 {
     [Header("Timeline")]
     [SerializeField] private PlayableDirector timeline;
+    [SerializeField] private bool waitForTimelineEndForCredits;
+    private bool finalQteCompleted;
     [SerializeField] private bool startFirstQteWithScene;
     [SerializeField, Min(0f)] private float firstQteStartDelay = 0.15f;
     [SerializeField] private List<double> successVideoTimes = new() { 6.216666666666656d, 18.483333333333334d };
@@ -64,7 +66,7 @@ public class QTEManager : MonoBehaviour
     [SerializeField, Range(0.05f, 0.75f)] private float breathingCriticalThreshold = 0.25f;
     [SerializeField, Min(1f)] private float breathingPulseSpeed = 10f;
     [SerializeField] private Color breathingBarColor = new Color(0.25f, 1f, 0.42f);
-    [SerializeField] private Color breathingCriticalColor = new Color(1f, 0.82f, 0.18f);
+    [SerializeField] private Color breathingCriticalColor = new Color(1f, 0.15f, 0.15f);
 
     [Header("Vignette")]
     [SerializeField, Range(0f, 1f)] private float qteVignetteIntensity = 0.22f;
@@ -106,14 +108,12 @@ public class QTEManager : MonoBehaviour
     private GameObject instructionBackdrop;
     private GameObject creditsPanel;
     private IntroInstructionsController introInstructions;
+    private PauseMenuController pauseController;
     private bool gameStarted;
     private bool waitingForIntro;
     private float timeScaleBeforeIntro = 1f;
     private bool audioPausedBeforeIntro;
     private Vignette cameraVignette;
-    private Camera feedbackCamera;
-    private Vector3 feedbackCameraPosition;
-    private float cameraShakeUntil;
     private string lastFeedbackMessage;
 
     private readonly List<FaceButton> sequence = new();
@@ -131,7 +131,9 @@ public class QTEManager : MonoBehaviour
 
     private void Awake()
     {
-        PauseMenuController.EnsureOn(gameObject);
+        if (timeline != null)
+            timeline.stopped += OnCinematicStopped;
+        pauseController = PauseMenuController.EnsureOn(gameObject);
         introInstructions = IntroInstructionsController.EnsureOn(gameObject);
         introInstructions?.ShowIntro();
         // The introduction is a hard gate. It must be closed explicitly by JUGAR or PS4 X;
@@ -156,9 +158,7 @@ public class QTEManager : MonoBehaviour
         EnsureVignetteOverlay();
         EnsureCreditsPanel();
         EnsureCameraVignette();
-        feedbackCamera = Camera.main != null ? Camera.main : FindFirstObjectByType<Camera>();
-        if (feedbackCamera != null)
-            feedbackCameraPosition = feedbackCamera.transform.localPosition;
+        EnsurePolishedPresentation();
     }
 
     private void Start()
@@ -176,6 +176,7 @@ public class QTEManager : MonoBehaviour
 
     public void BeginGame()
     {
+        if (pauseController?.IsPaused == true) return;
         if (gameStarted)
         {
             Debug.Log("[Intro] BeginGame ignored because the game has already started.");
@@ -223,7 +224,8 @@ public class QTEManager : MonoBehaviour
             return;
         }
 
-        UpdateCameraFeedback();
+        if (IsGameplayInputBlocked || Time.timeScale <= 0f)
+            return;
 
         if (backgroundBreathingActive)
             UpdateBackgroundBreathing();
@@ -329,9 +331,15 @@ public class QTEManager : MonoBehaviour
         if (titleText != null) titleText.text = currentQTE.title;
         PrepareInstructions();
         UpdateBars();
+        BeginPresentation();
     }
 
     public bool IsQteActive => qteActive;
+    public bool HasGameStarted => gameStarted;
+    public bool IsGameplayInputBlocked => pauseController != null && pauseController.BlocksGameplayInput;
+    public bool CanAdvanceCinematic => gameStarted && !qteActive &&
+        (gameOverPanel == null || !gameOverPanel.activeSelf) &&
+        (creditsPanel == null || !creditsPanel.activeSelf);
 
     public void StartNextQTE()
     {
@@ -353,6 +361,8 @@ public class QTEManager : MonoBehaviour
 
     public void RetryQTE()
     {
+        pauseController?.ResumeGame();
+        finalQteCompleted = false;
         StopBackgroundBreathing();
         qteActive = false;
         SetActive(vignetteOverlay, false);
@@ -390,13 +400,13 @@ public class QTEManager : MonoBehaviour
         switch (currentQTE.type)
         {
             case QTEType.HoldButtons:
-                SetText(instructionText, "Mantén L2 y R2");
+                SetText(instructionText, "Mantén L2 y R2 pulsados a la vez");
                 SetText(sequenceText, "");
                 ShowFeedback("", Color.white, 0f);
                 break;
 
             case QTEType.ButtonSequence:
-                SetText(instructionText, "Aprieta X, círculo, cuadrado o triángulo según aparezcan");
+                SetText(instructionText, "Pulsa los botones en el orden que aparece");
                 ConfigureSequencePromptLayout();
                 int length = Mathf.Max(1, Mathf.RoundToInt(currentQTE.requiredAmount));
                 for (int i = 0; i < length; i++)
@@ -406,30 +416,30 @@ public class QTEManager : MonoBehaviour
                 break;
 
             case QTEType.RotateStick:
-                SetText(instructionText, "Gira cualquiera de los análogos");
+                SetText(instructionText, "Gira ambos análogos");
                 SetText(sequenceText, "");
                 ShowFeedback("", Color.white, 0f);
                 break;
 
             case QTEType.AlternatingTriggers:
-                SetText(instructionText, "Alterna L2 y R2");
+                SetText(instructionText, "Pulsa y suelta L2 y R2 por turnos. Empieza por L2");
                 SetText(sequenceText, "L2");
                 ShowFeedback("", Color.white, 0f);
                 break;
 
             case QTEType.DPadMovement:
-                SetText(instructionText, "Usa las flechas del mando");
+                SetText(instructionText, "Mantén pulsada una dirección de la cruceta");
                 SetText(sequenceText, "");
                 ShowFeedback("", Color.white, 0f);
                 break;
 
             case QTEType.LeftStickLeft:
-                SetText(instructionText, $"Mantén el análogo izquierdo hacia la izquierda durante {currentQTE.requiredAmount:0.#} segundos");
+                SetText(instructionText, "Mantén el análogo izquierdo hacia la izquierda");
                 SetText(sequenceText, "");
                 ShowFeedback("", Color.white, 0f);
                 break;
             case QTEType.RotateLeftStick:
-                SetText(instructionText, "Gira el análogo izquierdo una vuelta completa");
+                SetText(instructionText, "Gira el análogo izquierdo sin cambiar de sentido");
                 SetText(sequenceText, "");
                 ShowFeedback("", Color.white, 0f);
                 break;
@@ -620,6 +630,7 @@ public class QTEManager : MonoBehaviour
         Trace($"QTE {completedIndex + 1} completado correctamente.");
         qteActive = false;
         SetActive(qtePanel, false);
+        ShowOutcome(true);
         SetActive(vignetteOverlay, backgroundBreathingActive);
         SetCameraVignette(backgroundBreathingActive ? breathingVignetteIntensity : 0f);
         currentQTE.onSuccess?.Invoke();
@@ -629,9 +640,29 @@ public class QTEManager : MonoBehaviour
         if (completedIndex == qtes.Count - 1)
         {
             StopBackgroundBreathing();
-            onAllQtesCompleted?.Invoke();
-            ShowCredits();
+            finalQteCompleted = true;
+            if (!waitForTimelineEndForCredits)
+            {
+                onAllQtesCompleted?.Invoke();
+                ShowCredits();
+            }
         }
+    }
+
+    private void OnCinematicStopped(PlayableDirector director)
+    {
+        if (!waitForTimelineEndForCredits || !finalQteCompleted)
+            return;
+
+        finalQteCompleted = false;
+        onAllQtesCompleted?.Invoke();
+        ShowCredits();
+    }
+
+    private void OnDestroy()
+    {
+        if (timeline != null)
+            timeline.stopped -= OnCinematicStopped;
     }
 
     private void ContinueAtNextVideo()
@@ -665,6 +696,7 @@ public class QTEManager : MonoBehaviour
 
     private void FailQTE()
     {
+        ShowOutcome(false);
         Trace($"QTE {currentIndex + 1} fallado por tiempo.");
         StopBackgroundBreathing();
         SetActive(vignetteOverlay, false);
@@ -693,7 +725,7 @@ public class QTEManager : MonoBehaviour
         SetActive(breathingPanel, true);
         SetActive(vignetteOverlay, true);
         SetCameraVignette(breathingVignetteIntensity);
-        SetBreathingStatus("INHALA · MANTÉN L2 + R2", new Color(1f, 0.82f, 0.18f));
+        SetBreathingStatus("Mantén L2 y R2, inhala.", new Color(1f, 0.82f, 0.18f));
         Trace("Respiración continua activada.");
     }
 
@@ -727,9 +759,9 @@ public class QTEManager : MonoBehaviour
         }
 
         if (breathingHoldPhase)
-            SetBreathingStatus("INHALA · MANTÉN L2 + R2", new Color(1f, 0.82f, 0.18f));
+            SetBreathingStatus("Mantén L2 y R2, inhala.", new Color(1f, 0.82f, 0.18f));
         else
-            SetBreathingStatus("EXHALA · SUELTA", new Color(0.45f, 0.8f, 1f));
+            SetBreathingStatus("Suelta L2 y R2, exhala.", new Color(0.45f, 0.8f, 1f));
 
         UpdateBreathingBarVisual();
 
@@ -750,6 +782,8 @@ public class QTEManager : MonoBehaviour
 
     private void EnsureVignetteOverlay()
     {
+        if (vignetteOverlay == null && qtePanel != null)
+            vignetteOverlay = FindDescendant(qtePanel.transform.parent, "QTE_Vignette")?.gameObject;
         if (qtePanel == null || vignetteOverlay != null)
             return;
 
@@ -927,6 +961,8 @@ public class QTEManager : MonoBehaviour
 
     private void EnsureInstructionBackdrop()
     {
+        if (instructionBackdrop == null && qtePanel != null)
+            instructionBackdrop = FindDescendant(qtePanel.transform, "QTE_Instruction_Backdrop")?.gameObject;
         if (qtePanel == null || instructionBackdrop != null ||
             titleText == null || instructionText == null || sequenceText == null)
             return;
@@ -1008,6 +1044,7 @@ public class QTEManager : MonoBehaviour
 
     private void LateUpdate()
     {
+        UpdatePresentation();
         SyncTmpText(titleTmpText, titleText);
         SyncTmpText(instructionTmpText, instructionText);
         SyncTmpText(sequenceTmpText, sequenceText);
@@ -1062,6 +1099,8 @@ public class QTEManager : MonoBehaviour
 
     private void EnsureFeedbackVisual()
     {
+        if (feedbackText == null && qtePanel != null)
+            feedbackText = FindDescendant(qtePanel.transform, "QTE_Feedback")?.GetComponent<Text>();
         if (qtePanel == null || feedbackText != null)
             return;
 
@@ -1132,7 +1171,7 @@ public class QTEManager : MonoBehaviour
         panelImage.raycastTarget = false;
 
         Text title = CreateUiText("Titulo", panelRect, 24, TextAnchor.UpperCenter);
-        title.text = "CONTÉN LA RESPIRACIÓN";
+        title.text = "CONTROLA LA RESPIRACIÓN";
         title.rectTransform.anchorMin = title.rectTransform.anchorMax = new Vector2(0.5f, 1f);
         title.rectTransform.pivot = new Vector2(0.5f, 1f);
         title.rectTransform.anchoredPosition = new Vector2(0f, -18f);
@@ -1205,31 +1244,11 @@ public class QTEManager : MonoBehaviour
         feedbackExpiresAt = Time.unscaledTime + duration;
         feedbackText.gameObject.SetActive(true);
 
-        if (message != lastFeedbackMessage && (message == "CORRECTO" || message == "GIRO CORRECTO" ||
-            message == "MOVIMIENTO DETECTADO" || message == "PUERTA ABRIENDO" ||
-            message == "VENTANA ABRIENDO" || message == "BOTONES CORRECTOS"))
-            TriggerCameraFeedback();
+        bool repeatedDiscreteInput = message == "CORRECTO" || message == "SECUENCIA REINICIADA";
+        if (message != lastFeedbackMessage || repeatedDiscreteInput || Time.time > presentationPulseUntil + 0.3f)
+            PulsePresentation(color.g > color.r);
 
         lastFeedbackMessage = message;
-    }
-
-    private void TriggerCameraFeedback()
-    {
-        cameraShakeUntil = Time.unscaledTime + 0.12f;
-    }
-
-    private void UpdateCameraFeedback()
-    {
-        if (feedbackCamera == null)
-            return;
-
-        if (Time.unscaledTime < cameraShakeUntil)
-        {
-            feedbackCamera.transform.localPosition = feedbackCameraPosition + (Vector3)UnityEngine.Random.insideUnitCircle * 0.035f;
-            return;
-        }
-
-        feedbackCamera.transform.localPosition = feedbackCameraPosition;
     }
 
     private static RectTransform CreateUiImage(string objectName, Transform parent, Color color)
@@ -1246,7 +1265,7 @@ public class QTEManager : MonoBehaviour
     private void ShowSequence()
     {
         if (sequencePosition >= sequence.Count) return;
-        SetText(sequenceText, $"Aprieta {ButtonName(sequence[sequencePosition])}");
+        SetText(sequenceText, $"Pulsa {ButtonName(sequence[sequencePosition])}");
     }
 
     private void ConfigureSequencePromptLayout()
@@ -1257,10 +1276,16 @@ public class QTEManager : MonoBehaviour
         RectTransform prompt = sequenceText.rectTransform;
         prompt.anchorMin = prompt.anchorMax = new Vector2(0.5f, 0.5f);
         prompt.pivot = new Vector2(0.5f, 0.5f);
-        prompt.anchoredPosition = new Vector2(0f, 60f);
+        prompt.anchoredPosition = new Vector2(0f, -100f);
         prompt.sizeDelta = new Vector2(760f, 120f);
         sequenceText.alignment = TextAnchor.MiddleCenter;
         sequenceText.fontSize = 32;
+        if (sequenceTmpText != null)
+        {
+            sequenceTmpText.rectTransform.anchoredPosition = prompt.anchoredPosition;
+            sequenceTmpText.rectTransform.sizeDelta = prompt.sizeDelta;
+            sequenceTmpText.fontSize = sequenceText.fontSize;
+        }
     }
 
     private static FaceButton? ReadFaceButton()

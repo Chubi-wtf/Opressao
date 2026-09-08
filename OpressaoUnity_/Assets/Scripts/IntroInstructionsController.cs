@@ -29,6 +29,7 @@ public sealed class IntroInstructionsController : MonoBehaviour
 
     private void Update()
     {
+        if (qteManager != null && qteManager.IsGameplayInputBlocked) return;
         if (introPanel == null || !introPanel.activeInHierarchy)
             return;
 
