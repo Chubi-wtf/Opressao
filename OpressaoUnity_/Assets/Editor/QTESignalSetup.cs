@@ -15,6 +15,7 @@ public static class QTESignalSetup
         21d,
         30d,
         34d,
+        -1d, // Window signal is available for manual placement in the Timeline.
         38d
     };
 
@@ -25,6 +26,7 @@ public static class QTESignalSetup
         "Forcejeo desesperado",
         "Moverse antes de que llegue",
         "Abrir puerta",
+        "Abrir ventana",
         "Respiración final"
     };
 
@@ -53,7 +55,8 @@ public static class QTESignalSetup
         List<SignalAsset> signals = new();
         for (int index = 0; index < SignalTimes.Length; index++)
         {
-            string path = $"{folder}/QTE_{index + 1}.asset";
+            string assetName = index == 5 ? "AbrirVentana" : $"QTE_{(index == 6 ? 6 : index + 1)}";
+            string path = $"{folder}/{assetName}.asset";
             SignalAsset asset = AssetDatabase.LoadAssetAtPath<SignalAsset>(path);
             if (asset == null)
             {
@@ -64,12 +67,15 @@ public static class QTESignalSetup
             asset.name = SignalNames[index];
             EditorUtility.SetDirty(asset);
 
+            signals.Add(asset);
+            if (SignalTimes[index] < 0d)
+                continue;
+
             SignalEmitter marker = track.CreateMarker<SignalEmitter>(SignalTimes[index]);
             marker.name = SignalNames[index];
             marker.asset = asset;
             marker.retroactive = true;
             marker.emitOnce = true;
-            signals.Add(asset);
         }
 
         foreach (QTEStartOnTimelineImage oldTrigger in Object.FindObjectsByType<QTEStartOnTimelineImage>(FindObjectsSortMode.None))

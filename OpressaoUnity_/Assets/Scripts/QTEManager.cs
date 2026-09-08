@@ -17,7 +17,8 @@ public enum QTEType
     RotateStick,
     AlternatingTriggers,
     DPadMovement,
-    LeftStickLeft
+    LeftStickLeft,
+    RotateLeftStick
 }
 
 [Serializable]
@@ -264,6 +265,9 @@ public class QTEManager : MonoBehaviour
             case QTEType.LeftStickLeft:
                 UpdateLeftStickLeftQTE();
                 break;
+            case QTEType.RotateLeftStick:
+                UpdateRotateLeftStickQTE();
+                break;
         }
 
         UpdateBars();
@@ -420,7 +424,12 @@ public class QTEManager : MonoBehaviour
                 break;
 
             case QTEType.LeftStickLeft:
-                SetText(instructionText, "Mueve el análogo izquierdo hacia la izquierda");
+                SetText(instructionText, $"Mantén el análogo izquierdo hacia la izquierda durante {currentQTE.requiredAmount:0.#} segundos");
+                SetText(sequenceText, "");
+                ShowFeedback("", Color.white, 0f);
+                break;
+            case QTEType.RotateLeftStick:
+                SetText(instructionText, "Gira el análogo izquierdo una vuelta completa");
                 SetText(sequenceText, "");
                 ShowFeedback("", Color.white, 0f);
                 break;
@@ -500,6 +509,34 @@ public class QTEManager : MonoBehaviour
         previousDirection = direction;
     }
 
+    private void UpdateRotateLeftStickQTE()
+    {
+        Vector2 direction = Gamepad.current != null
+            ? Gamepad.current.leftStick.ReadValue()
+            : Vector2.zero;
+
+        if (direction.magnitude < 0.65f)
+        {
+            previousDirection = Vector2.zero;
+            return;
+        }
+
+        if (previousDirection.magnitude >= 0.65f)
+        {
+            float angle = Vector2.SignedAngle(previousDirection, direction);
+            // Count small, smooth movements; reversing direction undoes the turn.
+            if (Mathf.Abs(angle) <= 135f)
+            {
+                accumulatedAngle += angle;
+                progress = Mathf.Abs(accumulatedAngle) / 360f;
+                if (Mathf.Abs(angle) > 0.1f)
+                    ShowFeedback("PUERTA ABRIENDO", new Color(0.25f, 1f, 0.42f), 0.2f);
+            }
+        }
+
+        previousDirection = direction;
+    }
+
     private void EnforceIntroPause()
     {
         Time.timeScale = 0f;
@@ -569,11 +606,11 @@ public class QTEManager : MonoBehaviour
         if (controller || keyboard)
         {
             progress += Time.deltaTime;
-            ShowFeedback("PUERTA ABRIENDO", new Color(0.25f, 1f, 0.42f), 0.2f);
+            ShowFeedback("VENTANA ABRIENDO", new Color(0.25f, 1f, 0.42f), 0.2f);
             return;
         }
 
-        progress = Mathf.Max(0f, progress - Time.deltaTime * 0.35f);
+        progress = 0f;
         ShowFeedback("", Color.white, 0f);
     }
 
@@ -1169,7 +1206,8 @@ public class QTEManager : MonoBehaviour
         feedbackText.gameObject.SetActive(true);
 
         if (message != lastFeedbackMessage && (message == "CORRECTO" || message == "GIRO CORRECTO" ||
-            message == "MOVIMIENTO DETECTADO" || message == "PUERTA ABRIENDO" || message == "BOTONES CORRECTOS"))
+            message == "MOVIMIENTO DETECTADO" || message == "PUERTA ABRIENDO" ||
+            message == "VENTANA ABRIENDO" || message == "BOTONES CORRECTOS"))
             TriggerCameraFeedback();
 
         lastFeedbackMessage = message;

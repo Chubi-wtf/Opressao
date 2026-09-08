@@ -11,10 +11,10 @@ using UnityEngine.Video;
 
 public static class CinematicVideoSetup
 {
-    private const string VideoFolder = "Assets/Videos";
+    private const string VideoFolder = "Assets";
     private const string GeneratedFolder = "Assets/Videos/Generated";
     private const string RootName = "CinematicVideos";
-    private const string AnimaticName = "ANIMATIC PISADEIRA";
+    private const string AnimaticName = "Video completo_";
 
     [MenuItem("Tools/Opressao/Integrar videos en Timeline")]
     public static void IntegrateVideos()
