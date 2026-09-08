@@ -218,8 +218,7 @@ public partial class QTEManager
             string advance = currentQTE.type == QTEType.ButtonSequence
                 ? $"{sequencePosition} / {sequence.Count} pasos"
                 : $"{Mathf.RoundToInt(completed * 100f)}% completado";
-            presentationStatus.text = $"{advance}    ·    {(urgent ? "QUEDA POCO TIEMPO" : "TIEMPO RESTANTE")}  {Mathf.CeilToInt(Mathf.Max(0f, timeRemaining))} s";
-            presentationStatus.color = urgent ? errorAccent : calmAccent;
+            
         }
         if (timerContainer != null && timerContainer.TryGetComponent(out Image timerImage))
             timerImage.color = urgent ? errorAccent : calmAccent;
