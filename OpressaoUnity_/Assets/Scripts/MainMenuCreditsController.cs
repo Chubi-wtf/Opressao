@@ -5,11 +5,17 @@ using UnityEngine.InputSystem;
 
 public sealed class MainMenuCreditsController : MonoBehaviour
 {
+    #region referencias
+
     [SerializeField] private GameObject menuPanel;
     [SerializeField] private GameObject creditsPanel;
     [SerializeField, Min(100f)] private float gamepadCursorSpeed = 1100f;
 
     private readonly List<RaycastResult> uiRaycastResults = new();
+
+    #endregion
+
+    #region inicio
 
     private void Awake()
     {
@@ -22,6 +28,10 @@ public sealed class MainMenuCreditsController : MonoBehaviour
         MoveCursorWithLeftStick();
         TryClickUiWithCross();
     }
+
+    #endregion
+
+    #region creditos
 
     public void ShowCredits()
     {
@@ -44,6 +54,10 @@ public sealed class MainMenuCreditsController : MonoBehaviour
         menuPanel = menu;
         creditsPanel = credits;
     }
+
+    #endregion
+
+    #region controles
 
     private void MoveCursorWithLeftStick()
     {
@@ -88,4 +102,5 @@ public sealed class MainMenuCreditsController : MonoBehaviour
         ExecuteEvents.ExecuteHierarchy(target, pointer, ExecuteEvents.pointerClickHandler);
         Debug.Log($"[Main Menu] PS4 X sent a left click to {target.name}.");
     }
+    #endregion
 }

@@ -7,10 +7,16 @@ using TMPro;
 [InitializeOnLoad]
 public static class CreditsPanelSetup
 {
+    #region inicio
+
     static CreditsPanelSetup()
     {
         EditorApplication.delayCall += EnsureCreditsPanel;
     }
+
+    #endregion
+
+    #region creditos
 
     [MenuItem("Tools/Opressao/Crear panel de créditos")]
     public static void EnsureCreditsPanel()
@@ -51,6 +57,10 @@ public static class CreditsPanelSetup
         Selection.activeGameObject = panel;
     }
 
+    #endregion
+
+    #region ui
+
     private static TextMeshProUGUI CreateText(string objectName, Transform parent, float fontSize,
         FontStyles style, TextAlignmentOptions alignment)
     {
@@ -73,6 +83,10 @@ public static class CreditsPanelSetup
         rect.offsetMax = Vector2.zero;
     }
 
+    #endregion
+
+    #region utilidades
+
     private static GameObject FindSceneObject(string objectName)
     {
         foreach (GameObject candidate in Resources.FindObjectsOfTypeAll<GameObject>())
@@ -83,4 +97,5 @@ public static class CreditsPanelSetup
 
         return null;
     }
+    #endregion
 }

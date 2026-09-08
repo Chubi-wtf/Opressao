@@ -5,12 +5,18 @@ using UnityEngine.Video;
 [RequireComponent(typeof(VideoPlayer))]
 public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
 {
+    #region referencias
+
     private static readonly HashSet<TimelineVideoPlayerBehaviour> ActivePlayers = new();
 
     [Range(0.1f, 3f)] [SerializeField] private float playbackSpeed = 1f;
 
     private VideoPlayer videoPlayer;
     private bool playWhenPrepared;
+
+    #endregion
+
+    #region inicio
 
     private void Awake()
     {
@@ -64,6 +70,10 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
         ActivePlayers.Remove(this);
     }
 
+    #endregion
+
+    #region reproduccion
+
     public static void PauseAll()
     {
         foreach (TimelineVideoPlayerBehaviour player in ActivePlayers)
@@ -115,6 +125,10 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
             videoPlayer.Stop();
     }
 
+    #endregion
+
+    #region eventos
+
     private void OnVideoPrepared(VideoPlayer source)
     {
         if (isActiveAndEnabled && playWhenPrepared && !source.isPlaying)
@@ -125,4 +139,5 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
     {
         Debug.LogError($"No se pudo reproducir el video '{source.clip?.name}': {message}", source);
     }
+    #endregion
 }

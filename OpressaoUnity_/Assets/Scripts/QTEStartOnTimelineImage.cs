@@ -4,8 +4,14 @@ using UnityEngine;
 
 public sealed class QTEStartOnTimelineImage : MonoBehaviour
 {
+    #region referencias
+
     [SerializeField] private QTEManager qteManager;
     [SerializeField, Min(0)] private int qteIndex;
+
+    #endregion
+
+    #region timeline
 
     private IEnumerator Start()
     {
@@ -24,4 +30,5 @@ public sealed class QTEStartOnTimelineImage : MonoBehaviour
         if (!qteManager.IsQteActive)
             qteManager.StartQTE(qteIndex);
     }
+    #endregion
 }

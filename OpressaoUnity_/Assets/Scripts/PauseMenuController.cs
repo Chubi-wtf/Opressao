@@ -10,6 +10,8 @@ using UnityEngine.UI;
 [DefaultExecutionOrder(-200)]
 public sealed class PauseMenuController : MonoBehaviour
 {
+    #region referencias
+
     private const string PausePanelName = "PanelPausa";
     private const string OptionsPanelName = "PanelOpcionesPausa";
 
@@ -29,6 +31,10 @@ public sealed class PauseMenuController : MonoBehaviour
 
     [SerializeField, Min(100f)] private float pauseCursorSpeed = 1100f;
 
+    #endregion
+
+    #region inicio
+
     public static PauseMenuController EnsureOn(GameObject owner)
     {
         if (owner == null) return null;
@@ -47,6 +53,10 @@ public sealed class PauseMenuController : MonoBehaviour
             if (candidate.gameObject.scene == gameObject.scene) { qteManager = candidate; break; }
         return qteManager;
     }
+
+    #endregion
+
+    #region actualizacion
 
     private void Start()
     {
@@ -77,6 +87,10 @@ public sealed class PauseMenuController : MonoBehaviour
         else
             ResumeGame();
     }
+
+    #endregion
+
+    #region pausa
 
     public void PauseGame()
     {
@@ -148,9 +162,17 @@ public sealed class PauseMenuController : MonoBehaviour
         TracePause($"Resumed; timeScale={Time.timeScale:0.##}; cinematic allowed={manager == null || manager.CanAdvanceCinematic}.");
     }
 
+    #endregion
+
+    #region diagnostico
+
     [System.Diagnostics.Conditional("UNITY_EDITOR")]
     [System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
     private static void TracePause(string message) => Debug.Log("[Pause] " + message);
+
+    #endregion
+
+    #region controles
 
     private void MoveCursorWithLeftStick()
     {
@@ -199,6 +221,10 @@ public sealed class PauseMenuController : MonoBehaviour
         Debug.Log($"[Pause] PS4 X sent a left click to {target.name}.");
     }
 
+    #endregion
+
+    #region opciones
+
     public void OpenOptions()
     {
         if (!isPaused)
@@ -219,6 +245,10 @@ public sealed class PauseMenuController : MonoBehaviour
         SetPanelActive(pausePanel, true);
     }
 
+    #endregion
+
+    #region escenas
+
     public void QuitGame()
     {
         Application.Quit();
@@ -233,6 +263,10 @@ public sealed class PauseMenuController : MonoBehaviour
         Cursor.visible = true;
         SceneManager.LoadScene("Main Menu");
     }
+
+    #endregion
+
+    #region ui
 
     private void ResolvePanels()
     {
@@ -296,6 +330,10 @@ public sealed class PauseMenuController : MonoBehaviour
             buttons[0].onClick.AddListener(CloseOptions);
     }
 
+    #endregion
+
+    #region utilidades
+
     private static void Assign(Button button, UnityEngine.Events.UnityAction action, HashSet<Button> assigned)
     {
         if (button == null || assigned.Contains(button))
@@ -332,4 +370,5 @@ public sealed class PauseMenuController : MonoBehaviour
         if (panel != null)
             panel.SetActive(active);
     }
+    #endregion
 }

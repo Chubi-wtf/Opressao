@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public sealed class IntroInstructionsController : MonoBehaviour
 {
+    #region referencias
+
     private const string IntroPanelName = "PanelIntroInstrucciones";
 
     private GameObject introPanel;
@@ -12,6 +14,10 @@ public sealed class IntroInstructionsController : MonoBehaviour
     private bool listenerRegistered;
 
     public bool HasIntroPanel => introPanel != null;
+
+    #endregion
+
+    #region inicio
 
     public static IntroInstructionsController EnsureOn(GameObject owner)
     {
@@ -39,6 +45,10 @@ public sealed class IntroInstructionsController : MonoBehaviour
             StartGame();
         }
     }
+
+    #endregion
+
+    #region intro
 
     public void ShowIntro()
     {
@@ -78,6 +88,10 @@ public sealed class IntroInstructionsController : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region ui
+
     private void ResolvePanel()
     {
         if (introPanel == null)
@@ -97,4 +111,5 @@ public sealed class IntroInstructionsController : MonoBehaviour
 
         return null;
     }
+    #endregion
 }

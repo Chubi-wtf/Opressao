@@ -8,6 +8,8 @@ using UnityEngine.Timeline;
 
 public static class QTESignalSetup
 {
+    #region referencias
+
     private static readonly double[] SignalTimes =
     {
         4d,
@@ -29,6 +31,10 @@ public static class QTESignalSetup
         "Abrir ventana",
         "Respiración final"
     };
+
+    #endregion
+
+    #region signals
 
     [MenuItem("Tools/Opressao/Configurar Signals de QTE")]
     public static void Configure()
@@ -99,6 +105,10 @@ public static class QTESignalSetup
         Selection.activeGameObject = manager.gameObject;
     }
 
+    #endregion
+
+    #region utilidades
+
     private static void EnsureFolder(string path)
     {
         string current = "Assets";
@@ -109,4 +119,5 @@ public static class QTESignalSetup
             current = next;
         }
     }
+    #endregion
 }

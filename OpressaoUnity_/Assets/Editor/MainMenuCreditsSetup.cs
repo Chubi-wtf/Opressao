@@ -10,10 +10,16 @@ using TMPro;
 [InitializeOnLoad]
 public static class MainMenuCreditsSetup
 {
+    #region inicio
+
     static MainMenuCreditsSetup()
     {
         EditorApplication.delayCall += ConfigureActiveScene;
     }
+
+    #endregion
+
+    #region creditos
 
     [MenuItem("Tools/Opressao/Configurar créditos del Main Menu")]
     public static void ConfigureActiveScene()
@@ -44,6 +50,10 @@ public static class MainMenuCreditsSetup
         Selection.activeGameObject = creditsPanel;
     }
 
+    #endregion
+
+    #region ui
+
     private static MainMenuCreditsController GetOrCreateController(Transform parent)
     {
         MainMenuCreditsController existing = UnityEngine.Object.FindFirstObjectByType<MainMenuCreditsController>();
@@ -67,6 +77,10 @@ public static class MainMenuCreditsSetup
 
         UnityEventTools.AddPersistentListener(button.onClick, action);
     }
+
+    #endregion
+
+    #region utilidades
 
     private static GameObject FindObject(string requiredTerm)
     {
@@ -127,4 +141,5 @@ public static class MainMenuCreditsSetup
             .Replace("ó", "o")
             .Replace("ú", "u");
     }
+    #endregion
 }

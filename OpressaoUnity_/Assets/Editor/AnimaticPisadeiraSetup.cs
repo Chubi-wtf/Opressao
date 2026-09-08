@@ -4,6 +4,8 @@ using UnityEngine;
 
 public static class AnimaticPisadeiraSetup
 {
+    #region animatic
+
     [MenuItem("Tools/Opressao/Configurar animatic Pisadeira")]
     public static void Configure()
     {
@@ -37,6 +39,10 @@ public static class AnimaticPisadeiraSetup
         Debug.Log("Animatic Pisadeira configurado: video único, siete Signals y siete QTEs.");
     }
 
+    #endregion
+
+    #region qte
+
     private static void ConfigureQte(SerializedProperty qte, string title, QTEType type, float timeLimit, float requiredAmount, bool continuous = false)
     {
         qte.FindPropertyRelative("title").stringValue = title;
@@ -45,4 +51,5 @@ public static class AnimaticPisadeiraSetup
         qte.FindPropertyRelative("requiredAmount").floatValue = requiredAmount;
         qte.FindPropertyRelative("continuous").boolValue = continuous;
     }
+    #endregion
 }

@@ -10,8 +10,14 @@ using UnityEngine.Timeline;
 
 public static class DialogueTimelineSetup
 {
+    #region referencias
+
     private static readonly double[] Starts = { 3.45, 9.55, 14.25, 28.1, 33.1, 38.5, 48.3, 50.6, 57.5, 64.3 };
     private static readonly string[] Speakers = { "Hermano", "Claudio", "Hermano", "Pisadeira", "Pisadeira", "Pisadeira", "Hermano", "Claudio", "Hermano", "Claudio" };
+
+    #endregion
+
+    #region dialogos
 
     [MenuItem("Tools/Opressao/Integrar dialogos en Timeline")]
     public static void Configure()
@@ -84,6 +90,10 @@ public static class DialogueTimelineSetup
         Selection.activeGameObject = director.gameObject;
     }
 
+    #endregion
+
+    #region validacion
+
     [MenuItem("Tools/Opressao/Validar dialogos en Timeline")]
     public static void Validate()
     {
@@ -116,4 +126,5 @@ public static class DialogueTimelineSetup
         File.WriteAllText("Temp/DialogueValidation.txt", report.ToString());
         Debug.Log(report.ToString());
     }
+    #endregion
 }

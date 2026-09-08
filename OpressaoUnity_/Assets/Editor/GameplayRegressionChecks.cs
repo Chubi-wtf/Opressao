@@ -19,6 +19,8 @@ using UnityEngine.Timeline;
 [InitializeOnLoad]
 public static class GameplayRegressionChecks
 {
+    #region referencias
+
     private const string RunningKey = "Opressao.GameplayChecks.Running";
     private static readonly List<string> results = new();
     private static readonly Queue<(string name, Func<IEnumerator> run)> cases = new();
@@ -33,6 +35,10 @@ public static class GameplayRegressionChecks
     private static PauseMenuController pause;
     private static PlayableDirector director;
     private static List<(double time, int index)> markers;
+
+    #endregion
+
+    #region inicio
 
     static GameplayRegressionChecks()
     {
@@ -92,6 +98,10 @@ public static class GameplayRegressionChecks
         UnityEngine.Object.DontDestroyOnLoad(driver);
     }
 
+    #endregion
+
+    #region ejecucion
+
     public static void Tick()
     {
         if (!EditorApplication.isPlaying || Time.frameCount == lastFrame) return;
@@ -135,6 +145,10 @@ public static class GameplayRegressionChecks
         EditorApplication.Exit(failed == 0 ? 0 : 1);
     }
 
+    #endregion
+
+    #region utilidades
+
     private static IEnumerator Reset(bool begin = true)
     {
         InputSystem.QueueStateEvent(keyboard, new KeyboardState());
@@ -171,6 +185,10 @@ public static class GameplayRegressionChecks
         while (!condition() && Time.realtimeSinceStartupAsDouble < until) yield return null;
         Check(condition(), error);
     }
+
+    #endregion
+
+    #region pausa
 
     private static IEnumerator DoublePause()
     {
@@ -212,6 +230,10 @@ public static class GameplayRegressionChecks
         Check(Time.timeScale > 0f, "Game remains frozen after closing intro and pause");
     }
 
+    #endregion
+
+    #region qte
+
     private static IEnumerator QteTimer()
     {
         yield return Reset(); manager.StartQTE(0); yield return null;
@@ -236,6 +258,10 @@ public static class GameplayRegressionChecks
         pause.ResumeGame(); yield return Wait(0.1f);
         Check(Get<float>(manager, "backgroundBreathingProgress") > progress, "Breathing did not resume");
     }
+
+    #endregion
+
+    #region signals
 
     private static IEnumerator Cross((double time, int index) marker, int pauses = 1)
     {
@@ -270,6 +296,10 @@ public static class GameplayRegressionChecks
         Check(manager.IsQteActive, "Retry did not reactivate QTE");
     }
 
+    #endregion
+
+    #region recorrido
+
     private static IEnumerator FullFlow()
     {
         yield return Reset();
@@ -294,6 +324,10 @@ public static class GameplayRegressionChecks
         Check(visited.SequenceEqual(expected), $"Signals mismatch. Expected [{string.Join(",", expected)}], got [{string.Join(",", visited)}]");
         Check(Get<GameObject>(manager, "creditsPanel").activeSelf, "Credits did not appear after final QTE and Timeline ending");
     }
+
+    #endregion
+
+    #region controles
 
     private static IEnumerator KeyPress(Key key)
     {
@@ -326,6 +360,10 @@ public static class GameplayRegressionChecks
         Check(Get<int>(manager, "sequencePosition") == 0, "Wrong input did not reset sequence");
         ScreenCapture.CaptureScreenshot(Path.GetFullPath("gameplay-wrong-input.png")); yield return null;
     }
+
+    #endregion
+
+    #region pausa
 
     private static IEnumerator PausedRotation()
     {
@@ -377,6 +415,10 @@ public static class GameplayRegressionChecks
         yield return Cross(markers.First());
     }
 
+    #endregion
+
+    #region videos
+
     private static IEnumerator GameOverVideo()
     {
         yield return Reset(); manager.StartQTE(0); Set(manager, "timeRemaining", 0.01f);
@@ -392,9 +434,14 @@ public static class GameplayRegressionChecks
         Check(Math.Abs(Time.timeScale - speed) < 0.001f, "Pause changed the previous game speed");
     }
 
+    #endregion
+
+    #region utilidades
+
     private static FieldInfo Field(object owner, string name) => owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
     private static T Get<T>(object owner, string name) => (T)Field(owner, name).GetValue(owner);
     private static void Set(object owner, string name, object value) => Field(owner, name).SetValue(owner, value);
     private static void Call(object owner, string name) => owner.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(owner, null);
     private static void Check(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
+    #endregion
 }

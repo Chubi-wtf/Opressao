@@ -11,10 +11,16 @@ using UnityEngine.Video;
 
 public static class CinematicVideoSetup
 {
+    #region referencias
+
     private const string VideoFolder = "Assets";
     private const string GeneratedFolder = "Assets/Videos/Generated";
     private const string RootName = "CinematicVideos";
     private const string AnimaticName = "Video completo_";
+
+    #endregion
+
+    #region timeline
 
     [MenuItem("Tools/Opressao/Integrar videos en Timeline")]
     public static void IntegrateVideos()
@@ -95,6 +101,10 @@ public static class CinematicVideoSetup
         Debug.Log($"Cinematica configurada con {videoPaths.Length} videos. Duracion total: {cursor:0.00} s.");
     }
 
+    #endregion
+
+    #region videos
+
     private static GameObject CreateVideoObject(RectTransform parent, VideoClip clip, string safeName)
     {
         var videoObject = new GameObject(
@@ -160,6 +170,10 @@ public static class CinematicVideoSetup
         return videoObject;
     }
 
+    #endregion
+
+    #region utilidades
+
     private static void StretchToParent(RectTransform rect)
     {
         rect.anchorMin = Vector2.zero;
@@ -188,4 +202,5 @@ public static class CinematicVideoSetup
             current = next;
         }
     }
+    #endregion
 }

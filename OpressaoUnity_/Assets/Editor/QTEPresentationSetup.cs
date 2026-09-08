@@ -4,6 +4,8 @@ using UnityEngine;
 
 public static class QTEPresentationSetup
 {
+    #region ui
+
     [MenuItem("Tools/Opressao/Construir feedback visual QTE")]
     private static void Build()
     {
@@ -48,4 +50,5 @@ public static class QTEPresentationSetup
         Debug.LogError("[QTE] No se encontró ningún QTEManager en las escenas abiertas.");
         return false;
     }
+    #endregion
 }

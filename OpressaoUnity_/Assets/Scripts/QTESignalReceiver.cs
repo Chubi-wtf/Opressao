@@ -5,8 +5,14 @@ using UnityEngine.Timeline;
 
 public sealed class QTESignalReceiver : MonoBehaviour, INotificationReceiver
 {
+    #region referencias
+
     [SerializeField] private QTEManager qteManager;
     [SerializeField] private List<SignalAsset> qteSignals = new();
+
+    #endregion
+
+    #region signals
 
     public void Configure(QTEManager manager, List<SignalAsset> signals)
     {
@@ -23,4 +29,5 @@ public sealed class QTESignalReceiver : MonoBehaviour, INotificationReceiver
         if (qteIndex >= 0)
             qteManager.StartQTE(qteIndex);
     }
+    #endregion
 }

@@ -3,6 +3,8 @@ using UnityEngine.SceneManagement;
 
 public class SceneController : MonoBehaviour
 {
+    #region escenas
+
     public void RestartScene()
     {
         Scene currentScene = SceneManager.GetActiveScene();
@@ -24,6 +26,10 @@ public class SceneController : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
+    #endregion
+
+    #region salir
+
     public void QuitGame()
     {
 #if UNITY_EDITOR
@@ -32,4 +38,5 @@ public class SceneController : MonoBehaviour
         Application.Quit();
 #endif
     }
+    #endregion
 }

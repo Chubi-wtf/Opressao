@@ -34,6 +34,8 @@ public class QTEConfig
 }
 public partial class QTEManager : MonoBehaviour
 {
+    #region timeline
+
     [Header("Timeline")]
     [SerializeField] private PlayableDirector timeline;
     [SerializeField] private bool waitForTimelineEndForCredits;
@@ -41,6 +43,10 @@ public partial class QTEManager : MonoBehaviour
     [SerializeField] private bool startFirstQteWithScene;
     [SerializeField, Min(0f)] private float firstQteStartDelay = 0.15f;
     [SerializeField] private List<double> successVideoTimes = new() { 6.216666666666656d, 18.483333333333334d };
+
+    #endregion
+
+    #region ui
 
     [Header("UI")]
     [SerializeField] private GameObject qtePanel;
@@ -55,12 +61,24 @@ public partial class QTEManager : MonoBehaviour
     [SerializeField] private RectTransform leftTimerClose;
     [SerializeField] private RectTransform rightTimerClose;
 
+    #endregion
+
+    #region qte
+
     [Header("Cinematic QTEs")]
     [SerializeField] private List<QTEConfig> qtes = new();
+
+    #endregion
+
+    #region respiracion
 
     [Header("Continuous Breathing")]
     [SerializeField, Min(0.1f)] private float breathingHoldDuration = 1.5f;
     [SerializeField, Min(0.1f)] private float breathingReleaseDuration = 1f;
+
+    #endregion
+
+    #region barra de carga
 
     [Header("Breathing Bar")]
     [SerializeField, Range(0.05f, 0.75f)] private float breathingCriticalThreshold = 0.25f;
@@ -68,14 +86,26 @@ public partial class QTEManager : MonoBehaviour
     [SerializeField] private Color breathingBarColor = new Color(0.25f, 1f, 0.42f);
     [SerializeField] private Color breathingCriticalColor = new Color(1f, 0.15f, 0.15f);
 
+    #endregion
+
+    #region efectos
+
     [Header("Vignette")]
     [SerializeField, Range(0f, 1f)] private float qteVignetteIntensity = 0.22f;
     [SerializeField, Range(0f, 1f)] private float breathingVignetteIntensity = 0.14f;
     [SerializeField, Range(0f, 1f)] private float vignetteSmoothness = 0.65f;
     [SerializeField] private Color vignetteColor = Color.black;
 
+    #endregion
+
+    #region eventos
+
     [Header("General Events")]
     public UnityEvent onAllQtesCompleted;
+
+    #endregion
+
+    #region estado
 
     [Header("Diagnostics")]
     [SerializeField] private bool debugQteFlow = true;
@@ -128,6 +158,10 @@ public partial class QTEManager : MonoBehaviour
         West,
         North
     }
+
+    #endregion
+
+    #region inicio
 
     private void Awake()
     {
@@ -281,6 +315,10 @@ public partial class QTEManager : MonoBehaviour
     }
 
    
+    #endregion
+
+    #region qte
+
     public void StartQTE(int index)
     {
         if (index < 0 || index >= qtes.Count)
@@ -392,6 +430,10 @@ public partial class QTEManager : MonoBehaviour
             timeline.Play();
     }
 
+    #endregion
+
+    #region instrucciones
+
     private void PrepareInstructions()
     {
         sequence.Clear();
@@ -445,6 +487,10 @@ public partial class QTEManager : MonoBehaviour
                 break;
         }
     }
+
+    #endregion
+
+    #region controles
 
     private void UpdateHoldQTE()
     {
@@ -547,6 +593,10 @@ public partial class QTEManager : MonoBehaviour
         previousDirection = direction;
     }
 
+    #endregion
+
+    #region intro
+
     private void EnforceIntroPause()
     {
         Time.timeScale = 0f;
@@ -561,6 +611,10 @@ public partial class QTEManager : MonoBehaviour
 
         TimelineVideoPlayerBehaviour.StopAll();
     }
+
+    #endregion
+
+    #region controles
 
     private void UpdateAlternatingTriggerQTE()
     {
@@ -624,6 +678,10 @@ public partial class QTEManager : MonoBehaviour
         ShowFeedback("", Color.white, 0f);
     }
 
+    #endregion
+
+    #region resultado
+
     private void CompleteQTE()
     {
         int completedIndex = currentIndex;
@@ -648,6 +706,10 @@ public partial class QTEManager : MonoBehaviour
             }
         }
     }
+
+    #endregion
+
+    #region timeline
 
     private void OnCinematicStopped(PlayableDirector director)
     {
@@ -694,6 +756,10 @@ public partial class QTEManager : MonoBehaviour
         TimelineVideoPlayerBehaviour.ResumeAll();
     }
 
+    #endregion
+
+    #region derrota
+
     private void FailQTE()
     {
         ShowOutcome(false);
@@ -713,6 +779,10 @@ public partial class QTEManager : MonoBehaviour
         gameOverPanel.transform.SetAsLastSibling();
         currentQTE.onFailure?.Invoke();
     }
+
+    #endregion
+
+    #region respiracion
 
     private void StartBackgroundBreathing(QTEConfig qte)
     {
@@ -780,6 +850,10 @@ public partial class QTEManager : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region efectos
+
     private void EnsureVignetteOverlay()
     {
         if (vignetteOverlay == null && qtePanel != null)
@@ -824,6 +898,10 @@ public partial class QTEManager : MonoBehaviour
         if (cameraVignette != null)
             cameraVignette.intensity.Override(Mathf.Clamp01(intensity));
     }
+
+    #endregion
+
+    #region barra de carga
 
     private void UpdateBreathingBarVisual()
     {
@@ -915,6 +993,10 @@ public partial class QTEManager : MonoBehaviour
         foreach (Slider legacySlider in qtePanel.GetComponentsInChildren<Slider>(true))
             legacySlider.gameObject.SetActive(false);
     }
+
+    #endregion
+
+    #region ui
 
     private void EnsureQteOverlayCanvas()
     {
@@ -1121,6 +1203,10 @@ public partial class QTEManager : MonoBehaviour
         item.SetActive(false);
     }
 
+    #endregion
+
+    #region creditos
+
     private void EnsureCreditsPanel()
     {
         if (creditsPanel != null)
@@ -1148,6 +1234,10 @@ public partial class QTEManager : MonoBehaviour
         creditsPanel.transform.SetAsLastSibling();
         SetActive(creditsPanel, true);
     }
+
+    #endregion
+
+    #region respiracion
 
     private void EnsureBreathingOverlay()
     {
@@ -1206,6 +1296,10 @@ public partial class QTEManager : MonoBehaviour
         SetActive(breathingPanel, false);
     }
 
+    #endregion
+
+    #region ui pero en gameplay
+
     private static Text CreateUiText(string objectName, Transform parent, int fontSize, TextAnchor alignment)
     {
         GameObject item = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
@@ -1262,6 +1356,10 @@ public partial class QTEManager : MonoBehaviour
         return rect;
     }
 
+    #endregion
+
+    #region secuencia
+
     private void ShowSequence()
     {
         if (sequencePosition >= sequence.Count) return;
@@ -1287,6 +1385,10 @@ public partial class QTEManager : MonoBehaviour
             sequenceTmpText.fontSize = sequenceText.fontSize;
         }
     }
+
+    #endregion
+
+    #region controles
 
     private static FaceButton? ReadFaceButton()
     {
@@ -1360,6 +1462,10 @@ public partial class QTEManager : MonoBehaviour
         _ => "?"
     };
 
+    #endregion
+
+    #region utilidades
+
     private static void SetActive(GameObject target, bool value)
     {
         if (target != null) target.SetActive(value);
@@ -1377,4 +1483,5 @@ public partial class QTEManager : MonoBehaviour
             Debug.Log($"[QTE] {message}", this);
 #endif
     }
+    #endregion
 }

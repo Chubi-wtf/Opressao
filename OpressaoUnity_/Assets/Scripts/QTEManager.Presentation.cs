@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public partial class QTEManager
 {
+    #region referencias
+
     [Header("Visual feedback")]
     [SerializeField, Range(0f, 1f)] private float feedbackMotion = 0.65f;
     private readonly Color calmAccent = new Color(0.48f, 0.81f, 0.89f);
@@ -20,6 +22,10 @@ public partial class QTEManager
     private float outcomeStartedAt = -10f;
     private bool presentationError;
     private Vector3 promptBaseScale = Vector3.one;
+
+    #endregion
+
+    #region ui
 
     private void EnsurePolishedPresentation()
     {
@@ -112,6 +118,10 @@ public partial class QTEManager
         return null;
     }
 
+    #endregion
+
+    #region editor
+
 #if UNITY_EDITOR
     public void ValidatePresentationInEditor()
     {
@@ -147,6 +157,10 @@ public partial class QTEManager
     }
 #endif
 
+    #endregion
+
+    #region ui
+
     private static TextMeshProUGUI CreatePresentationText(string label, Transform parent, float size)
     {
         GameObject item = new GameObject(label, typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
@@ -159,6 +173,10 @@ public partial class QTEManager
         text.raycastTarget = false;
         return text;
     }
+
+    #endregion
+
+    #region animaciones
 
     private void BeginPresentation()
     {
@@ -227,4 +245,5 @@ public partial class QTEManager
                 new Color(0.2f, 0.025f, 0.02f, 0.23f), urgent ? 0.7f : (presentationError ? pulse : 0f));
         SetCameraVignette(qteVignetteIntensity + (urgent ? 0.04f : 0f));
     }
+    #endregion
 }
