@@ -2344,6 +2344,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeline: {fileID: 390146858}
   waitForTimelineEndForCredits: 1
+  previewWithoutQtes: 1
   startFirstQteWithScene: 0
   firstQteStartDelay: 0
   successVideoTimes: []

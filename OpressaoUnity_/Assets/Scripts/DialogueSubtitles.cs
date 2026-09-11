@@ -34,7 +34,13 @@ public sealed class DialogueSubtitles : MonoBehaviour
     {
         var data = Resources.Load<TextAsset>("DialogueSubtitles_es");
         if (director == null || data == null || director.playableAsset is not TimelineAsset timeline) return;
-        var catalogue = JsonUtility.FromJson<Catalogue>(data.text);
+        Catalogue catalogue;
+        try { catalogue = JsonUtility.FromJson<Catalogue>(data.text); }
+        catch (ArgumentException exception)
+        {
+            Debug.LogError("[Subtítulos] Revisa el formato de Resources/DialogueSubtitles_es.json: " + exception.Message, this);
+            return;
+        }
         if (catalogue?.lines == null) return;
         foreach (var track in timeline.GetOutputTracks())
         {
@@ -46,6 +52,7 @@ public sealed class DialogueSubtitles : MonoBehaviour
                 if (line != null && !string.IsNullOrWhiteSpace(line.text)) cues.Add((clip, line));
             }
         }
+        #region ui
         if (cues.Count == 0) return;
         var canvasObject = new GameObject("Subtitulos", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
         canvasObject.transform.SetParent(transform, false);
@@ -81,6 +88,7 @@ public sealed class DialogueSubtitles : MonoBehaviour
         label.richText = false;
         label.raycastTarget = false;
         panel.SetActive(false);
+        #endregion
     }
 
     private void LateUpdate()

@@ -34,7 +34,7 @@ public class QTEConfig
 }
 public partial class QTEManager : MonoBehaviour
 {
-    #region timeline
+    #region timeline variables
 
     [Header("Timeline")]
     [SerializeField] private PlayableDirector timeline;
@@ -46,7 +46,7 @@ public partial class QTEManager : MonoBehaviour
 
     #endregion
 
-    #region ui
+    #region ui variables
 
     [Header("UI")]
     [SerializeField] private GameObject qtePanel;
@@ -63,14 +63,14 @@ public partial class QTEManager : MonoBehaviour
 
     #endregion
 
-    #region qte
+    #region qte variables
 
     [Header("Cinematic QTEs")]
     [SerializeField] private List<QTEConfig> qtes = new();
 
     #endregion
 
-    #region respiracion
+    #region respiracion variables
 
     [Header("Continuous Breathing")]
     [SerializeField, Min(0.1f)] private float breathingHoldDuration = 1.5f;
@@ -78,7 +78,7 @@ public partial class QTEManager : MonoBehaviour
 
     #endregion
 
-    #region barra de carga
+    #region barra de carga variables
 
     [Header("Breathing Bar")]
     [SerializeField, Range(0.05f, 0.75f)] private float breathingCriticalThreshold = 0.25f;
@@ -88,7 +88,7 @@ public partial class QTEManager : MonoBehaviour
 
     #endregion
 
-    #region efectos
+    #region efectos variables
 
     [Header("Vignette")]
     [SerializeField, Range(0f, 1f)] private float qteVignetteIntensity = 0.22f;
@@ -98,16 +98,17 @@ public partial class QTEManager : MonoBehaviour
 
     #endregion
 
-    #region eventos
+    #region eventos variables
 
     [Header("General Events")]
     public UnityEvent onAllQtesCompleted;
 
     #endregion
 
-    #region estado
+    #region estado variables
 
     [Header("Diagnostics")]
+    [SerializeField] private bool previewWithoutQtes;
     [SerializeField] private bool debugQteFlow = true;
 
     private QTEConfig currentQTE;
@@ -203,7 +204,6 @@ public partial class QTEManager : MonoBehaviour
 
         if (waitingForIntro)
         {
-            Debug.Log("[Intro] Game is paused at the instruction panel. Waiting for JUGAR or PS4 X.");
             introInstructions.ShowIntro();
             return;
         }
@@ -214,12 +214,11 @@ public partial class QTEManager : MonoBehaviour
         if (pauseController?.IsPaused == true) return;
         if (gameStarted)
         {
-            Debug.Log("[Intro] BeginGame ignored because the game has already started.");
             return;
         }
 
-        Debug.Log("[Intro] BeginGame accepted. Releasing timeline and gameplay.");
         gameStarted = true;
+        if (previewWithoutQtes) finalQteCompleted = true;
         if (waitingForIntro)
         {
             waitingForIntro = false;
@@ -322,9 +321,9 @@ public partial class QTEManager : MonoBehaviour
 
     public void StartQTE(int index)
     {
+        if (previewWithoutQtes) return;
         if (index < 0 || index >= qtes.Count)
         {
-            Debug.LogError($"No existe un QTE con índice {index}.");
             return;
         }
 
