@@ -5,17 +5,24 @@ using UnityEngine.Video;
 [RequireComponent(typeof(VideoPlayer))]
 public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
 {
+    #region referencias
+
     private static readonly HashSet<TimelineVideoPlayerBehaviour> ActivePlayers = new();
 
     [Range(0.1f, 3f)] [SerializeField] private float playbackSpeed = 1f;
 
     private VideoPlayer videoPlayer;
+    private bool playWhenPrepared;
+
+    #endregion
+
+    #region inicio
 
     private void Awake()
     {
         videoPlayer = GetComponent<VideoPlayer>();
         videoPlayer.playOnAwake = false;
-        videoPlayer.isLooping = true;
+        videoPlayer.isLooping = false;
         videoPlayer.playbackSpeed = playbackSpeed;
     }
 
@@ -30,16 +37,31 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
             videoPlayer = GetComponent<VideoPlayer>();
 
         videoPlayer.playbackSpeed = playbackSpeed;
-        videoPlayer.Stop();
-        videoPlayer.frame = 0;
-        videoPlayer.Play();
+        videoPlayer.prepareCompleted -= OnVideoPrepared;
+        videoPlayer.prepareCompleted += OnVideoPrepared;
+        videoPlayer.errorReceived -= OnVideoError;
+        videoPlayer.errorReceived += OnVideoError;
+
+        playWhenPrepared = videoPlayer.clip != null && videoPlayer.time <= 0.01d;
+        if (playWhenPrepared)
+        {
+            if (videoPlayer.isPrepared)
+                videoPlayer.Play();
+            else
+                videoPlayer.Prepare();
+        }
     }
 
     private void OnDisable()
     {
         ActivePlayers.Remove(this);
 
-        if (videoPlayer != null && Application.isPlaying)
+        if (videoPlayer == null)
+            return;
+
+        videoPlayer.prepareCompleted -= OnVideoPrepared;
+        videoPlayer.errorReceived -= OnVideoError;
+        if (Application.isPlaying)
             videoPlayer.Stop();
     }
 
@@ -47,6 +69,10 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
     {
         ActivePlayers.Remove(this);
     }
+
+    #endregion
+
+    #region reproduccion
 
     public static void PauseAll()
     {
@@ -68,6 +94,7 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
 
     private void PausePlayback()
     {
+        playWhenPrepared = false;
         if (videoPlayer != null && videoPlayer.isPlaying)
             videoPlayer.Pause();
     }
@@ -81,13 +108,36 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
             videoPlayer = GetComponent<VideoPlayer>();
 
         videoPlayer.playbackSpeed = playbackSpeed;
-        if (videoPlayer.clip != null && !videoPlayer.isPlaying)
+        if (videoPlayer.clip == null || videoPlayer.time >= videoPlayer.clip.length - 0.05d)
+            return;
+
+        playWhenPrepared = true;
+        if (videoPlayer.isPrepared)
             videoPlayer.Play();
+        else
+            videoPlayer.Prepare();
     }
 
     private void StopPlayback()
     {
+        playWhenPrepared = false;
         if (videoPlayer != null)
             videoPlayer.Stop();
     }
+
+    #endregion
+
+    #region eventos
+
+    private void OnVideoPrepared(VideoPlayer source)
+    {
+        if (isActiveAndEnabled && playWhenPrepared && !source.isPlaying)
+            source.Play();
+    }
+
+    private static void OnVideoError(VideoPlayer source, string message)
+    {
+        Debug.LogError($"No se pudo reproducir el video '{source.clip?.name}': {message}", source);
+    }
+    #endregion
 }

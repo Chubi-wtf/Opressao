@@ -4,6 +4,8 @@ using UnityEngine;
 
 public static class AnimaticPisadeiraSetup
 {
+    #region animatic
+
     [MenuItem("Tools/Opressao/Configurar animatic Pisadeira")]
     public static void Configure()
     {
@@ -15,13 +17,15 @@ public static class AnimaticPisadeiraSetup
 
         SerializedObject data = new(manager);
         SerializedProperty qtes = data.FindProperty("qtes");
-        qtes.arraySize = 5;
+        qtes.arraySize = 7;
 
         ConfigureQte(qtes.GetArrayElementAtIndex(0), "Forcejeo inicial", QTEType.ButtonSequence, 6f, 4f);
-        ConfigureQte(qtes.GetArrayElementAtIndex(1), "Control de respiración", QTEType.HoldButtons, 6.5f, 3.5f);
-        ConfigureQte(qtes.GetArrayElementAtIndex(2), "Forcejeo desesperado", QTEType.AlternatingTriggers, 7f, 8f);
-        ConfigureQte(qtes.GetArrayElementAtIndex(3), "Muévete antes de que llegue", QTEType.RightStickMovement, 6f, 2.5f);
-        ConfigureQte(qtes.GetArrayElementAtIndex(4), "Control de respiración", QTEType.HoldButtons, 6.5f, 3.5f);
+        ConfigureQte(qtes.GetArrayElementAtIndex(1), "Control de respiración", QTEType.HoldButtons, 6.5f, 3.5f, true);
+        ConfigureQte(qtes.GetArrayElementAtIndex(2), "Forcejeo desesperado", QTEType.RotateStick, 10f, 1.5f);
+        ConfigureQte(qtes.GetArrayElementAtIndex(3), "Muévete antes de que llegue", QTEType.DPadMovement, 6f, 1.75f);
+        ConfigureQte(qtes.GetArrayElementAtIndex(4), "Abre la puerta", QTEType.RotateLeftStick, 5f, 1f);
+        ConfigureQte(qtes.GetArrayElementAtIndex(5), "Abre la ventana", QTEType.LeftStickLeft, 5f, 1f);
+        ConfigureQte(qtes.GetArrayElementAtIndex(6), "Es un sueño, es un sueño.", QTEType.HoldButtons, 6.5f, 3.5f);
 
         data.FindProperty("successVideoTimes").ClearArray();
         data.FindProperty("startFirstQteWithScene").boolValue = false;
@@ -32,14 +36,20 @@ public static class AnimaticPisadeiraSetup
 
         QTESignalSetup.Configure();
         Selection.activeGameObject = manager.gameObject;
-        Debug.Log("Animatic Pisadeira configurado: video único, cinco Signals y cinco QTEs.");
+        Debug.Log("Animatic Pisadeira configurado: video único, siete Signals y siete QTEs.");
     }
 
-    private static void ConfigureQte(SerializedProperty qte, string title, QTEType type, float timeLimit, float requiredAmount)
+    #endregion
+
+    #region qte
+
+    private static void ConfigureQte(SerializedProperty qte, string title, QTEType type, float timeLimit, float requiredAmount, bool continuous = false)
     {
         qte.FindPropertyRelative("title").stringValue = title;
         qte.FindPropertyRelative("type").enumValueIndex = (int)type;
         qte.FindPropertyRelative("timeLimit").floatValue = timeLimit;
         qte.FindPropertyRelative("requiredAmount").floatValue = requiredAmount;
+        qte.FindPropertyRelative("continuous").boolValue = continuous;
     }
+    #endregion
 }
