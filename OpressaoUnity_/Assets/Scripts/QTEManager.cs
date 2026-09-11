@@ -197,6 +197,7 @@ public partial class QTEManager : MonoBehaviour
 
     private void Start()
     {
+        DialogueSubtitles.Attach(timeline, this);
         SetActive(qtePanel, false);
         SetActive(gameOverPanel, false);
 

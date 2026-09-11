@@ -1,0 +1,55 @@
+{
+  "lines": [
+    {
+      "audio": "Dialogo n_1 (Hermano)",
+      "speaker": "Hermano",
+      "text": "¡Siento que voy a reventar, estoy demasiado lleno!"
+    },
+    {
+      "audio": "Dialogo n_2 (Claudio)",
+      "speaker": "Cláudio",
+      "text": "También yo, estoy exhausto, me iré a dormir, descansa."
+    },
+    {
+      "audio": "Dialogo n_3 (Hermano)",
+      "speaker": "Hermano",
+      "text": "Igual tú."
+    },
+    {
+      "audio": "Dialogo n_4 (Pisadeira)",
+      "speaker": "Pisadeira",
+      "text": "Voz 1: Tan pesado... tan lleno...\nVoz 2: El banquete perfecto... qué dulce es tu sueño, niño..."
+    },
+    {
+      "audio": "Dialogo n_5 (Pisadeira)",
+      "speaker": "Pisadeira",
+      "text": "Voz 1: No te resistas... ríndete.\nVoz 2: Respira si puedes, tu miedo me hace más fuerte."
+    },
+    {
+      "audio": "Dialogo n_6 (Pisadeira)",
+      "speaker": "Pisadeira",
+      "text": "Voz 1: Mi peso se queda contigo.\nVoz 2: Siempre te vigilo."
+    },
+    {
+      "audio": "Dialogo n_7 (Hermano)",
+      "speaker": "Hermano",
+      "text": "¡¿Qué pasa?!"
+    },
+    {
+      "audio": "Dialogo n_8 (Claudio)",
+      "speaker": "Cláudio",
+      "text": "¡Tenía algo encima de mí, una anciana, no podía respirar, sentía que moriría!"
+    },
+    {
+      "audio": "Dialogo n_9 (Hermano)",
+      "speaker": "Hermano",
+      "text": "Debe haberte caído mal la comida, es todo. Vuelve a dormir."
+    },
+    {
+      "audio": "Dialogos n_10 (Claudio)",
+      "speaker": "Cláudio",
+      "text": "Está bien, espero tengas razón…"
+"
+    }
+  ]
+}
