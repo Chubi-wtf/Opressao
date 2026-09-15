@@ -8,6 +8,7 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
     #region referencias
 
     private static readonly HashSet<TimelineVideoPlayerBehaviour> ActivePlayers = new();
+    private static bool playbackRequested;
 
     [Range(0.1f, 3f)] [SerializeField] private float playbackSpeed = 1f;
 
@@ -42,14 +43,13 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
         videoPlayer.errorReceived -= OnVideoError;
         videoPlayer.errorReceived += OnVideoError;
 
-        playWhenPrepared = videoPlayer.clip != null && videoPlayer.time <= 0.01d;
-        if (playWhenPrepared)
-        {
-            if (videoPlayer.isPrepared)
-                videoPlayer.Play();
-            else
-                videoPlayer.Prepare();
-        }
+        // Timeline must not advance independently while the first video frame is
+        // still being decoded. QTEManager starts both after preparation finishes.
+        playWhenPrepared = playbackRequested;
+        if (videoPlayer.clip != null && !videoPlayer.isPrepared)
+            videoPlayer.Prepare();
+        else if (playWhenPrepared && videoPlayer.clip != null && !videoPlayer.isPlaying)
+            videoPlayer.Play();
     }
 
     private void OnDisable()
@@ -76,20 +76,56 @@ public sealed class TimelineVideoPlayerBehaviour : MonoBehaviour
 
     public static void PauseAll()
     {
+        playbackRequested = false;
         foreach (TimelineVideoPlayerBehaviour player in ActivePlayers)
             player.PausePlayback();
     }
 
     public static void ResumeAll()
     {
+        playbackRequested = true;
         foreach (TimelineVideoPlayerBehaviour player in ActivePlayers)
             player.ResumePlayback();
     }
 
     public static void StopAll()
     {
+        playbackRequested = false;
         foreach (TimelineVideoPlayerBehaviour player in ActivePlayers)
             player.StopPlayback();
+    }
+
+    public static void ResetForNewGame()
+    {
+        playbackRequested = false;
+        // Include inactive Timeline objects: they can retain a preview frame too.
+        foreach (var player in Object.FindObjectsByType<TimelineVideoPlayerBehaviour>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            player.videoPlayer ??= player.GetComponent<VideoPlayer>();
+            player.StopPlayback();
+            RenderTexture target = player.videoPlayer.targetTexture;
+            if (target == null || !target.IsCreated()) continue;
+            RenderTexture previous = RenderTexture.active;
+            try
+            {
+                RenderTexture.active = target;
+                GL.Clear(true, true, Color.black);
+            }
+            finally { RenderTexture.active = previous; }
+        }
+    }
+
+    public static bool AreActivePlayersPrepared()
+    {
+        bool foundPlayer = false;
+        foreach (TimelineVideoPlayerBehaviour player in ActivePlayers)
+        {
+            foundPlayer = true;
+            if (player.videoPlayer == null || !player.videoPlayer.isPrepared)
+                return false;
+        }
+        return foundPlayer;
     }
 
     private void PausePlayback()

@@ -142,9 +142,6 @@ public partial class QTEManager : MonoBehaviour
     private IntroInstructionsController introInstructions;
     private PauseMenuController pauseController;
     private bool gameStarted;
-    private bool waitingForIntro;
-    private float timeScaleBeforeIntro = 1f;
-    private bool audioPausedBeforeIntro;
     private Vignette cameraVignette;
     private string lastFeedbackMessage;
 
@@ -171,17 +168,7 @@ public partial class QTEManager : MonoBehaviour
             timeline.stopped += OnCinematicStopped;
         pauseController = PauseMenuController.EnsureOn(gameObject);
         introInstructions = IntroInstructionsController.EnsureOn(gameObject);
-        introInstructions?.ShowIntro();
-        // The introduction is a hard gate. It must be closed explicitly by JUGAR or PS4 X;
-        // no Timeline, video, signal, or QTE may run before that happens.
-        waitingForIntro = true;
-        Debug.Log($"[Intro] QTEManager Awake. Intro gate active: {waitingForIntro}; Timeline assigned: {timeline != null}.");
-        if (introInstructions == null || !introInstructions.HasIntroPanel)
-            Debug.LogError("[Intro] PanelIntroInstrucciones was not detected. Gameplay remains blocked until the panel is available.");
-
-        timeScaleBeforeIntro = Time.timeScale;
-        audioPausedBeforeIntro = AudioListener.pause;
-        EnforceIntroPause();
+        introInstructions?.HideIntro();
         EnsureClosingTimerVisual();
         EnsureQteOverlayCanvas();
         EnsureResponsiveCanvas();
@@ -203,11 +190,7 @@ public partial class QTEManager : MonoBehaviour
         SetActive(qtePanel, false);
         SetActive(gameOverPanel, false);
 
-        if (waitingForIntro)
-        {
-            introInstructions.ShowIntro();
-            return;
-        }
+        BeginGame();
     }
 
     public void BeginGame()
@@ -220,23 +203,18 @@ public partial class QTEManager : MonoBehaviour
 
         gameStarted = true;
         if (previewWithoutQtes) finalQteCompleted = true;
-        if (waitingForIntro)
-        {
-            waitingForIntro = false;
-            Time.timeScale = timeScaleBeforeIntro;
-            AudioListener.pause = audioPausedBeforeIntro;
-        }
-
         if (introInstructions != null)
             introInstructions.HideIntro();
 
         if (timeline != null)
         {
+            timeline.Stop();
+            TimelineVideoPlayerBehaviour.ResetForNewGame();
             timeline.enabled = true;
+            timeline.initialTime = 0d;
             timeline.time = 0d;
             timeline.Evaluate();
-            timeline.Play();
-            TimelineVideoPlayerBehaviour.ResumeAll();
+            StartCoroutine(StartTimelineWhenVideoIsReady());
         }
 
         if (startFirstQteWithScene && qtes.Count > 0)
@@ -251,14 +229,27 @@ public partial class QTEManager : MonoBehaviour
         StartQTE(0);
     }
 
-    private void Update()
+    private IEnumerator StartTimelineWhenVideoIsReady()
     {
-        if (waitingForIntro && !gameStarted)
+        const float timeout = 10f;
+        float waited = 0f;
+        while (!TimelineVideoPlayerBehaviour.AreActivePlayersPrepared() && waited < timeout)
         {
-            EnforceIntroPause();
-            return;
+            waited += Time.unscaledDeltaTime;
+            yield return null;
         }
 
+        if (!TimelineVideoPlayerBehaviour.AreActivePlayersPrepared())
+            Debug.LogError("El video inicial no terminó de prepararse; se iniciará la Timeline para evitar un bloqueo permanente.", this);
+
+        timeline.time = 0d;
+        timeline.Evaluate();
+        timeline.Play();
+        TimelineVideoPlayerBehaviour.ResumeAll();
+    }
+
+    private void Update()
+    {
         if (IsGameplayInputBlocked || Time.timeScale <= 0f)
             return;
 
@@ -450,7 +441,7 @@ public partial class QTEManager : MonoBehaviour
                 break;
 
             case QTEType.HoldSticks:
-                SetText(instructionText, "Mantén ambos sticks pulsados durante 5 segundos");
+                SetText(instructionText, "Mantén ambos sticks pulsados");
                 SetText(sequenceText, "");
                 ShowFeedback("", Color.white, 0f);
                 break;
@@ -603,25 +594,6 @@ public partial class QTEManager : MonoBehaviour
         }
 
         previousDirection = direction;
-    }
-
-    #endregion
-
-    #region intro
-
-    private void EnforceIntroPause()
-    {
-        Time.timeScale = 0f;
-        AudioListener.pause = true;
-
-        if (timeline != null)
-        {
-            timeline.playOnAwake = false;
-            timeline.Stop();
-            timeline.enabled = false;
-        }
-
-        TimelineVideoPlayerBehaviour.StopAll();
     }
 
     #endregion

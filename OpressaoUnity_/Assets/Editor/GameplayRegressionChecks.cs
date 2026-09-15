@@ -56,6 +56,12 @@ public static class GameplayRegressionChecks
         EditorApplication.EnterPlaymode();
     }
 
+    public static void RunStartupOnly()
+    {
+        SessionState.SetBool("Opressao.StartupOnly", true);
+        Run();
+    }
+
     private static void StartSuite()
     {
         keyboard = InputSystem.AddDevice<Keyboard>();
@@ -65,9 +71,20 @@ public static class GameplayRegressionChecks
         InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
         Application.runInBackground = true;
         results.Clear(); cases.Clear(); stack.Clear(); failed = 0;
+        if (SessionState.GetBool("Opressao.StartupOnly", false))
+        {
+            SessionState.SetBool("Opressao.StartupOnly", false);
+            cases.Enqueue(("Inicio: primer fotograma, avance y pausa del video", VideoStartup));
+            deadline = EditorApplication.timeSinceStartup + 45d;
+            var startupDriver = new GameObject("Startup regression driver");
+            GameplayCheckDriver.OnFrame = Tick;
+            startupDriver.AddComponent<GameplayCheckDriver>();
+            UnityEngine.Object.DontDestroyOnLoad(startupDriver);
+            return;
+        }
         cases.Enqueue(("Pausa repetida conserva tiempo y reanuda Timeline", DoublePause));
         cases.Enqueue(("Secuencia ignora botones mientras está pausada", PausedSequence));
-        cases.Enqueue(("Intro no puede empezar debajo del menú de pausa", IntroPause));
+        cases.Enqueue(("Inicio directo oculta la introducción y reproduce Timeline", DirectStart));
         cases.Enqueue(("Pausa y opciones conservan contador del QTE", QteTimer));
         cases.Enqueue(("Respiración conserva su fase durante pausa", Breathing));
         cases.Enqueue(("Fallo y reintento vuelven a emitir el primer signal", RetrySignal));
@@ -222,13 +239,35 @@ public static class GameplayRegressionChecks
         Check(Get<int>(manager, "sequencePosition") == 1, "Sequence input did not recover after resume");
     }
 
-    private static IEnumerator IntroPause()
+    private static IEnumerator DirectStart()
     {
-        yield return Reset(false); pause.PauseGame(); manager.BeginGame(); yield return Wait(0.1f);
-        bool started = Get<bool>(manager, "gameStarted");
-        Check(!started || !Get<bool>(pause, "isPaused"), "Intro began under pause; resume can restore zero timeScale");
-        pause.ResumeGame(); manager.BeginGame(); yield return Wait(0.1f);
-        Check(Time.timeScale > 0f, "Game remains frozen after closing intro and pause");
+        yield return Reset(false);
+        Check(Get<bool>(manager, "gameStarted"), "Game did not start automatically");
+        Check(director.state == PlayState.Playing, "Timeline did not start automatically");
+        GameObject intro = GameObject.Find("PanelIntroInstrucciones");
+        Check(intro == null || !intro.activeInHierarchy, "Intro panel is still visible");
+    }
+
+    private static IEnumerator VideoStartup()
+    {
+        yield return Reset(false);
+        var video = UnityEngine.Object.FindFirstObjectByType<UnityEngine.Video.VideoPlayer>();
+        Check(video != null, "No active VideoPlayer at startup");
+        for (int i = 0; i < 30; i++)
+        {
+            Debug.Log($"[StartupCheck] timeline={director.time:F3}, video={video.time:F3}, frame={video.frame}, prepared={video.isPrepared}, playing={video.isPlaying}, qte={manager.IsQteActive}, scale={Time.timeScale}");
+            Check(video.time < 5d, "Video started at a future timestamp");
+            if (manager.IsQteActive)
+            {
+                Check(video.isPrepared && video.frame >= 0, "QTE paused before the video displayed its first frame");
+                double pausedTime = video.time;
+                yield return Wait(0.3f);
+                Check(Math.Abs(video.time - pausedTime) < 0.15d, "Video kept advancing during the QTE");
+                yield break;
+            }
+            yield return Wait(0.2f);
+        }
+        Check(false, "Startup did not reach the first QTE within six seconds");
     }
 
     #endregion

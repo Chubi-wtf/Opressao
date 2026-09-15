@@ -29,8 +29,7 @@ public sealed class IntroInstructionsController : MonoBehaviour
     {
         qteManager = GetComponent<QTEManager>();
         ResolvePanel();
-        Debug.Log($"[Intro] Awake. Panel found: {introPanel != null}; JUGAR button found: {startButton != null}.");
-        ShowIntro();
+        HideIntro();
     }
 
     private void Update()

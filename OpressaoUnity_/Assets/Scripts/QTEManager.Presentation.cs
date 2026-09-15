@@ -195,9 +195,15 @@ public partial class QTEManager
     private void ShowOutcome(bool success)
     {
         if (outcomeText == null) return;
+        if (success)
+        {
+            outcomeStartedAt = -10f;
+            if (outcomeGroup != null) outcomeGroup.alpha = 0f;
+            return;
+        }
         outcomeStartedAt = Time.time;
-        outcomeText.text = success ? "ACCIÓN COMPLETADA" : "TIEMPO AGOTADO";
-        outcomeText.color = success ? successAccent : errorAccent;
+        outcomeText.text = "TIEMPO AGOTADO";
+        outcomeText.color = errorAccent;
     }
 
     private void UpdatePresentation()
