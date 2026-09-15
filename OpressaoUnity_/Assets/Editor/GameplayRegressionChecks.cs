@@ -35,6 +35,7 @@ public static class GameplayRegressionChecks
     private static PauseMenuController pause;
     private static PlayableDirector director;
     private static List<(double time, int index)> markers;
+    private static bool expectingEndingExit;
 
     #endregion
 
@@ -46,6 +47,14 @@ public static class GameplayRegressionChecks
         {
             if (state == PlayModeStateChange.EnteredPlayMode && SessionState.GetBool(RunningKey, false))
                 StartSuite();
+            if (state == PlayModeStateChange.ExitingPlayMode && expectingEndingExit)
+            {
+                expectingEndingExit = false;
+                bool black = manager != null && Get<UnityEngine.UI.Image>(manager, "endingFade").color.a >= 1f;
+                results.Add((black ? "PASS: " : "FAIL: ") + "Créditos: fundido completo y salida automática de Play Mode");
+                if (!black) failed++;
+                Finish();
+            }
         };
     }
 
@@ -59,6 +68,12 @@ public static class GameplayRegressionChecks
     public static void RunStartupOnly()
     {
         SessionState.SetBool("Opressao.StartupOnly", true);
+        Run();
+    }
+
+    public static void RunMenuAndEndingOnly()
+    {
+        SessionState.SetBool("Opressao.MenuAndEndingOnly", true);
         Run();
     }
 
@@ -83,17 +98,15 @@ public static class GameplayRegressionChecks
             return;
         }
         cases.Enqueue(("Pausa repetida conserva tiempo y reanuda Timeline", DoublePause));
+        cases.Enqueue(("Pausa durante preparación del video respeta el menú", PauseDuringStartup));
+        cases.Enqueue(("Botones reales: opciones, volver y reanudar recuperan el video", ResumeViaButtons));
         cases.Enqueue(("Secuencia ignora botones mientras está pausada", PausedSequence));
         cases.Enqueue(("Inicio directo oculta la introducción y reproduce Timeline", DirectStart));
         cases.Enqueue(("Pausa y opciones conservan contador del QTE", QteTimer));
         cases.Enqueue(("Respiración conserva su fase durante pausa", Breathing));
         cases.Enqueue(("Fallo y reintento vuelven a emitir el primer signal", RetrySignal));
         cases.Enqueue(("Cinco ciclos de pausa antes del primer signal", RepeatedSignal));
-        for (int i = 0; i < 7; i++)
-        {
-            int index = i;
-            cases.Enqueue(($"Signal QTE {i + 1}: pausa justo antes del marcador", () => SignalCase(index)));
-        }
+        cases.Enqueue(("Signals configurados: pausa justo antes de cada marcador", ConfiguredSignals));
         cases.Enqueue(("Recorrido completo sin saltos: todos los signals y créditos", FullFlow));
         cases.Enqueue(("Secuencia: todos los botones correctos completan el QTE", CompleteSequence));
         cases.Enqueue(("Secuencia: botón incorrecto reinicia el progreso", WrongSequence));
@@ -109,7 +122,15 @@ public static class GameplayRegressionChecks
             float value = speed;
             cases.Enqueue(($"Signals con velocidad {speed} y pausa repetida", () => VariableSpeed(value)));
         }
-        deadline = EditorApplication.timeSinceStartup + 240d;
+        cases.Enqueue(("Créditos: lectura, fundido y cierre", Ending));
+        if (SessionState.GetBool("Opressao.MenuAndEndingOnly", false))
+        {
+            SessionState.SetBool("Opressao.MenuAndEndingOnly", false);
+            cases.Clear();
+            cases.Enqueue(("Botones reales: opciones, volver y reanudar recuperan el video", ResumeViaButtons));
+            cases.Enqueue(("Créditos: lectura, fundido y cierre", Ending));
+        }
+        deadline = EditorApplication.timeSinceStartup + 360d;
         var driver = new GameObject("Gameplay regression driver");
         GameplayCheckDriver.OnFrame = Tick;
         driver.AddComponent<GameplayCheckDriver>();
@@ -167,7 +188,7 @@ public static class GameplayRegressionChecks
 
     #region utilidades
 
-    private static IEnumerator Reset(bool begin = true)
+    private static IEnumerator Reset(bool begin = true, bool waitForStartup = true)
     {
         InputSystem.QueueStateEvent(keyboard, new KeyboardState());
         InputSystem.QueueStateEvent(gamepad, new GamepadState());
@@ -189,6 +210,8 @@ public static class GameplayRegressionChecks
             .Select(s => (s.time, signals.IndexOf(s.asset))).OrderBy(s => s.time).ToList();
         if (begin) manager.BeginGame();
         yield return null;
+        if (waitForStartup)
+            yield return Until(() => !Get<bool>(manager, "cinematicStarting"), "Video startup did not finish", 12f);
     }
 
     private static IEnumerator Wait(float seconds)
@@ -218,6 +241,70 @@ public static class GameplayRegressionChecks
         Check(Time.timeScale > 0f && director.time > at + 0.03d, "Second pause erased resume state; Timeline is stuck");
     }
 
+    private static IEnumerator PauseDuringStartup()
+    {
+        yield return Reset(waitForStartup: false);
+        // Reproduce preparation completing underneath an open menu deterministically.
+        manager.StopAllCoroutines();
+        director.Pause(); TimelineVideoPlayerBehaviour.PauseAll();
+        Set(manager, "cinematicStarting", true);
+        pause.PauseGame();
+        manager.StartCoroutine((IEnumerator)manager.GetType().GetMethod("StartTimelineWhenVideoIsReady",
+            BindingFlags.Instance | BindingFlags.NonPublic).Invoke(manager, null));
+        yield return Wait(0.4f);
+        Check(director.state != PlayState.Playing, "Preparation resumed Timeline underneath pause");
+        Check(!UnityEngine.Object.FindFirstObjectByType<UnityEngine.Video.VideoPlayer>().isPlaying,
+            "Preparation resumed video underneath pause");
+        pause.ResumeGame();
+        yield return Until(() => director.state == PlayState.Playing, "Startup did not recover after resume", 12f);
+    }
+
+    private static IEnumerator ResumeViaButtons()
+    {
+        yield return Reset();
+        var video = UnityEngine.Object.FindFirstObjectByType<UnityEngine.Video.VideoPlayer>();
+        for (int i = 0; i < 3; i++)
+        {
+            pause.PauseGame();
+            var panel = Get<GameObject>(pause, "pausePanel");
+            var buttons = panel.GetComponentsInChildren<UnityEngine.UI.Button>(true);
+            buttons.First(b => b.name == "Boton Opciones").onClick.Invoke();
+            Check(Get<GameObject>(pause, "optionsPanel").activeSelf, "Options button did not open options");
+            Get<GameObject>(pause, "optionsPanel").GetComponentsInChildren<UnityEngine.UI.Button>(true)
+                .First().onClick.Invoke();
+            Check(panel.activeSelf, "Back button did not return to pause");
+            double at = director.time;
+            buttons.First(b => b.name == "Boton Resumen").onClick.Invoke();
+            yield return Wait(0.12f);
+            Check(!pause.IsPaused && Time.timeScale > 0f, "Resume button left game paused");
+            Check(director.time > at && video.isPlaying, "Resume button left Timeline or video frozen");
+        }
+    }
+
+    private static IEnumerator Ending()
+    {
+        yield return Reset();
+        Set(manager, "creditsDisplayDuration", 0.5f);
+        Set(manager, "creditsFadeDuration", 0.6f);
+        pause.PauseGame();
+        Call(manager, "ShowCredits");
+        Check(manager.IsEnding && !pause.IsPaused, "Ending did not dismiss the pause menu");
+        pause.PauseGame();
+        Check(!pause.IsPaused, "Pause interrupted the ending");
+        var fade = Get<UnityEngine.UI.Image>(manager, "endingFade");
+        Check(fade != null && fade.color.a == 0f, "Credits were covered before reading time");
+        Call(manager, "ShowCredits");
+        Check(Get<UnityEngine.UI.Image>(manager, "endingFade") == fade, "Ending started twice");
+        // The ending must finish even if another system freezes scaled time.
+        Time.timeScale = 0f;
+        yield return Wait(0.65f);
+        Check(fade.color.a > 0f && fade.color.a < 1f, "Ending did not fade gradually in real time");
+        expectingEndingExit = true;
+        yield return Wait(2f);
+        expectingEndingExit = false;
+        Check(false, "Ending never exited Play Mode");
+    }
+
     private static IEnumerator PausedSequence()
     {
         yield return Reset(); manager.StartQTE(0);
@@ -225,6 +312,7 @@ public static class GameplayRegressionChecks
         var qtes = Get<List<QTEConfig>>(manager, "qtes");
         int index = qtes.FindIndex(q => q.type == QTEType.ButtonSequence);
         Check(index >= 0, "No sequence QTE configured"); manager.StartQTE(index);
+        yield return WaitForQteInput();
         var sequence = (IList)Field(manager, "sequence").GetValue(manager);
         int button = Convert.ToInt32(sequence[0]);
         Key key = new[] { Key.S, Key.D, Key.A, Key.W }[button];
@@ -277,10 +365,18 @@ public static class GameplayRegressionChecks
     private static IEnumerator QteTimer()
     {
         yield return Reset(); manager.StartQTE(0); yield return null;
+        float fullTime = Get<float>(manager, "timeRemaining");
+        var sequence = (IList)Field(manager, "sequence").GetValue(manager);
+        yield return KeyPress(new[] { Key.S, Key.D, Key.A, Key.W }[Convert.ToInt32(sequence[0])]);
+        yield return Wait(0.3f);
+        Check(Get<float>(manager, "timeRemaining") == fullTime, "Reading time consumed the QTE timer");
+        Check(Get<int>(manager, "sequencePosition") == 0, "Input was accepted during reading time");
+        float reading = Get<float>(manager, "readingTimeRemaining");
         pause.PauseGame(); float time = Get<float>(manager, "timeRemaining");
         pause.OpenOptions(); yield return Wait(0.15f); pause.CloseOptions();
         Check(Math.Abs(Get<float>(manager, "timeRemaining") - time) < 0.01f, "Paused QTE lost time");
-        pause.ResumeGame(); yield return Wait(0.1f);
+        Check(Get<float>(manager, "readingTimeRemaining") == reading, "Pause consumed reading time");
+        pause.ResumeGame(); yield return Wait(reading + 0.1f);
         Check(Get<float>(manager, "timeRemaining") < time, "QTE timer did not resume");
         Check(director.state != PlayState.Playing, "Timeline resumed underneath an unfinished QTE");
     }
@@ -321,6 +417,14 @@ public static class GameplayRegressionChecks
         yield return Cross(markers.First(m => m.index == index));
     }
 
+    private static IEnumerator ConfiguredSignals()
+    {
+        yield return Reset();
+        int[] configured = markers.Select(m => m.index).Distinct().ToArray();
+        Check(configured.Length > 0, "Timeline has no configured QTE signals");
+        foreach (int index in configured) yield return SignalCase(index);
+    }
+
     private static IEnumerator RepeatedSignal()
     {
         yield return Reset(); yield return Cross(markers.First(), 5);
@@ -329,6 +433,7 @@ public static class GameplayRegressionChecks
     private static IEnumerator RetrySignal()
     {
         yield return Reset(); var first = markers.First(); yield return Cross(first);
+        yield return WaitForQteInput();
         Set(manager, "timeRemaining", 0.01f); yield return Wait(0.1f);
         Check(Get<GameObject>(manager, "gameOverPanel").activeSelf, "Timeout did not show game over");
         pause.PauseGame(); pause.ResumeGame(); manager.RetryQTE(); yield return null;
@@ -380,6 +485,7 @@ public static class GameplayRegressionChecks
     private static IEnumerator CompleteSequence()
     {
         yield return Reset(); manager.StartQTE(0);
+        yield return WaitForQteInput();
         var sequence = (IList)Field(manager, "sequence").GetValue(manager);
         int length = sequence.Count;
         for (int i = 0; i < length; i++)
@@ -399,6 +505,7 @@ public static class GameplayRegressionChecks
         Check(configs[1].type == QTEType.HoldButtons, "Common breathing must retain triggers");
         manager.StartQTE(index);
         InputSystem.QueueStateEvent(gamepad, new GamepadState { leftTrigger = 1f, rightTrigger = 1f });
+        yield return WaitForQteInput();
         yield return Wait(0.1f);
         Check(Get<float>(manager, "progress") == 0f, "Triggers advanced final hold");
         InputSystem.QueueStateEvent(gamepad, new GamepadState().WithButton(GamepadButton.LeftStick)
@@ -417,6 +524,7 @@ public static class GameplayRegressionChecks
     private static IEnumerator WrongSequence()
     {
         yield return Reset(); manager.StartQTE(0);
+        yield return WaitForQteInput();
         var sequence = (IList)Field(manager, "sequence").GetValue(manager);
         var keys = new[] { Key.S, Key.D, Key.A, Key.W };
         yield return KeyPress(keys[Convert.ToInt32(sequence[0])]);
@@ -435,6 +543,7 @@ public static class GameplayRegressionChecks
         yield return Reset();
         int index = Get<List<QTEConfig>>(manager, "qtes").FindIndex(q => q.type == QTEType.RotateLeftStick);
         manager.StartQTE(index);
+        yield return WaitForQteInput();
         InputSystem.QueueStateEvent(gamepad, new GamepadState { leftStick = Vector2.right });
         yield return Wait(0.06f); pause.PauseGame();
         float before = Get<float>(manager, "progress");
@@ -487,6 +596,7 @@ public static class GameplayRegressionChecks
     private static IEnumerator GameOverVideo()
     {
         yield return Reset(); manager.StartQTE(0); Set(manager, "timeRemaining", 0.01f);
+        yield return WaitForQteInput();
         yield return Wait(0.1f); pause.PauseGame(); pause.ResumeGame(); yield return null;
         foreach (var player in UnityEngine.Object.FindObjectsByType<TimelineVideoPlayerBehaviour>(FindObjectsSortMode.None))
             Check(!Get<bool>(player, "playWhenPrepared"), "Pause resume requested video playback behind game over");
@@ -502,6 +612,13 @@ public static class GameplayRegressionChecks
     #endregion
 
     #region utilidades
+
+    private static IEnumerator WaitForQteInput()
+    {
+        while (Get<float>(manager, "readingTimeRemaining") > 0f)
+            yield return null;
+        yield return null;
+    }
 
     private static FieldInfo Field(object owner, string name) => owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
     private static T Get<T>(object owner, string name) => (T)Field(owner, name).GetValue(owner);

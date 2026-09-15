@@ -98,7 +98,7 @@ public sealed class PauseMenuController : MonoBehaviour
         // Never overwrite the original playback snapshot with an already-paused one.
         if (isPaused) return;
         QTEManager manager = ResolveManager();
-        if (manager != null && !manager.HasGameStarted) return;
+        if (manager != null && (!manager.HasGameStarted || manager.IsEnding)) return;
         ResolvePanels();
         if (pausePanel == null)
             return;

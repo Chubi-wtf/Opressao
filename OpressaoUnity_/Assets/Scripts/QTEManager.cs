@@ -45,6 +45,12 @@ public partial class QTEManager : MonoBehaviour
     [SerializeField, Min(0f)] private float firstQteStartDelay = 0.15f;
     [SerializeField] private List<double> successVideoTimes = new() { 6.216666666666656d, 18.483333333333334d };
 
+    [Header("Ending")]
+    [SerializeField, Min(0f)] private float creditsDisplayDuration = 8f;
+    [SerializeField, Min(0.1f)] private float creditsFadeDuration = 3f;
+    private bool endingStarted;
+    private Image endingFade;
+
     #endregion
 
     #region ui variables
@@ -68,6 +74,7 @@ public partial class QTEManager : MonoBehaviour
 
     [Header("Cinematic QTEs")]
     [SerializeField] private List<QTEConfig> qtes = new();
+    private const float QteReadingDuration = 1.5f;
 
     #endregion
 
@@ -115,6 +122,7 @@ public partial class QTEManager : MonoBehaviour
     private QTEConfig currentQTE;
     private int currentIndex = -1;
     private float timeRemaining;
+    private float readingTimeRemaining;
     private float progress;
     private bool qteActive;
     private TextMeshProUGUI titleTmpText;
@@ -142,6 +150,7 @@ public partial class QTEManager : MonoBehaviour
     private IntroInstructionsController introInstructions;
     private PauseMenuController pauseController;
     private bool gameStarted;
+    private bool cinematicStarting;
     private Vignette cameraVignette;
     private string lastFeedbackMessage;
 
@@ -208,6 +217,7 @@ public partial class QTEManager : MonoBehaviour
 
         if (timeline != null)
         {
+            cinematicStarting = true;
             timeline.Stop();
             TimelineVideoPlayerBehaviour.ResetForNewGame();
             timeline.enabled = true;
@@ -242,10 +252,14 @@ public partial class QTEManager : MonoBehaviour
         if (!TimelineVideoPlayerBehaviour.AreActivePlayersPrepared())
             Debug.LogError("El video inicial no terminó de prepararse; se iniciará la Timeline para evitar un bloqueo permanente.", this);
 
-        timeline.time = 0d;
-        timeline.Evaluate();
+        // Preparation can finish while the pause menu or a QTE is open.
+        // Keep the startup coroutine in charge until the menu is closed.
+        while (IsGameplayInputBlocked || Time.timeScale <= 0f)
+            yield return null;
+        cinematicStarting = false;
+        if (!CanAdvanceCinematic) yield break;
         timeline.Play();
-        TimelineVideoPlayerBehaviour.ResumeAll();
+        if (CanAdvanceCinematic) TimelineVideoPlayerBehaviour.ResumeAll();
     }
 
     private void Update()
@@ -266,6 +280,14 @@ public partial class QTEManager : MonoBehaviour
             return;
         }
 #endif
+
+        // Keep the full time limit and ignore gameplay input while instructions are read.
+        // This runs after the pause guard so pausing also preserves the reading time.
+        if (readingTimeRemaining > 0f)
+        {
+            readingTimeRemaining = Mathf.Max(0f, readingTimeRemaining - Time.deltaTime);
+            return;
+        }
 
         if (feedbackText != null && feedbackText.gameObject.activeSelf &&
             Time.unscaledTime > feedbackExpiresAt)
@@ -325,6 +347,7 @@ public partial class QTEManager : MonoBehaviour
         if (index == qtes.Count - 1 && backgroundBreathingActive)
             StopBackgroundBreathing();
         timeRemaining = currentQTE.timeLimit;
+        readingTimeRemaining = QteReadingDuration;
         progress = 0f;
         qteActive = true;
         previousDirection = Vector2.zero;
@@ -367,8 +390,9 @@ public partial class QTEManager : MonoBehaviour
 
     public bool IsQteActive => qteActive;
     public bool HasGameStarted => gameStarted;
+    public bool IsEnding => endingStarted;
     public bool IsGameplayInputBlocked => pauseController != null && pauseController.BlocksGameplayInput;
-    public bool CanAdvanceCinematic => gameStarted && !qteActive &&
+    public bool CanAdvanceCinematic => gameStarted && !cinematicStarting && !endingStarted && !qteActive &&
         (gameOverPanel == null || !gameOverPanel.activeSelf) &&
         (creditsPanel == null || !creditsPanel.activeSelf);
 
@@ -400,6 +424,7 @@ public partial class QTEManager : MonoBehaviour
         currentQTE = null;
         currentIndex = -1;
         timeRemaining = 0f;
+        readingTimeRemaining = 0f;
         progress = 0f;
         sequence.Clear();
         sequencePosition = 0;
@@ -1210,15 +1235,58 @@ public partial class QTEManager : MonoBehaviour
 
     private void ShowCredits()
     {
+        if (endingStarted) return;
         EnsureCreditsPanel();
         if (creditsPanel == null)
             return;
 
+        pauseController?.ResumeGame();
+        endingStarted = true;
+        qteActive = false;
+        StopBackgroundBreathing();
+        SetActive(qtePanel, false);
+        SetActive(gameOverPanel, false);
         if (timeline != null)
             timeline.Pause();
         TimelineVideoPlayerBehaviour.PauseAll();
         creditsPanel.transform.SetAsLastSibling();
         SetActive(creditsPanel, true);
+        StartCoroutine(FadeCreditsAndQuit());
+    }
+
+    private IEnumerator FadeCreditsAndQuit()
+    {
+        GameObject overlay = new GameObject("EndingFade", typeof(RectTransform), typeof(Canvas),
+            typeof(CanvasRenderer), typeof(Image), typeof(GraphicRaycaster));
+        overlay.transform.SetParent(transform, false);
+        Canvas canvas = overlay.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = short.MaxValue;
+        endingFade = overlay.GetComponent<Image>();
+        endingFade.color = Color.clear;
+        endingFade.raycastTarget = true;
+
+        yield return new WaitForSecondsRealtime(creditsDisplayDuration);
+        float elapsed = 0f;
+        while (elapsed < creditsFadeDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            endingFade.color = new Color(0f, 0f, 0f, Mathf.Clamp01(elapsed / creditsFadeDuration));
+            yield return null;
+        }
+        endingFade.color = Color.black;
+        // Leave a rendered black frame before closing the application.
+        yield return null;
+        QuitAfterCredits();
+    }
+
+    private void QuitAfterCredits()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
     #endregion
