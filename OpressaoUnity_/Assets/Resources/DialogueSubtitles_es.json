@@ -17,18 +17,18 @@
     },
     {
       "audio": "Dialogo n_4 (Pisadeira)",
-      "speaker": "Pisadeira",
-      "text": "Voz 1: Tan pesado... tan lleno...\nVoz 2: El banquete perfecto... qué dulce es tu sueño, niño..."
+      "speaker": "???",
+      "text": "Tan pesado... tan lleno...\nEl banquete perfecto... qué dulce es tu sueño, niño..."
     },
     {
       "audio": "Dialogo n_5 (Pisadeira)",
-      "speaker": "Pisadeira",
-      "text": "Voz 1: No te resistas... ríndete.\nVoz 2: Respira si puedes, tu miedo me hace más fuerte."
+      "speaker": "???",
+      "text": "No te resistas... ríndete.\nRespira si puedes, tu miedo me hace más fuerte."
     },
     {
       "audio": "Dialogo n_6 (Pisadeira)",
-      "speaker": "Pisadeira",
-      "text": "Voz 1: Mi peso se queda contigo.\nVoz 2: Siempre te vigilo."
+      "speaker": "???",
+      "text": "Mi peso se queda contigo.\nSiempre te vigilo."
     },
     {
       "audio": "Dialogo n_7 (Hermano)",
@@ -47,6 +47,7 @@
     },
     {
       "audio": "Dialogos n_10 (Claudio)",
+      "timeOffset": -2,
       "speaker": "Cláudio",
       "text": "Está bien, espero tengas razón…"
     }

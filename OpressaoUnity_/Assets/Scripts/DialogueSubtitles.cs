@@ -14,6 +14,7 @@ public sealed class DialogueSubtitles : MonoBehaviour
         public string audio;
         public string speaker;
         public string text;
+        public float timeOffset;
     }
     [Serializable] public sealed class Catalogue { public Line[] lines; }
     private readonly List<(TimelineClip clip, Line line)> cues = new();
@@ -99,7 +100,8 @@ public sealed class DialogueSubtitles : MonoBehaviour
             manager != null && manager.CanAdvanceCinematic)
         {
             foreach (var cue in cues)
-                if (director.time >= cue.clip.start && director.time < cue.clip.end) { active = cue.line; break; }
+                if (director.time >= Math.Max(0d, cue.clip.start + cue.line.timeOffset) &&
+                    director.time < cue.clip.end + cue.line.timeOffset) { active = cue.line; break; }
         }
         if (active != null) label.text = active.speaker + ": " + active.text;
         panel.SetActive(active != null);

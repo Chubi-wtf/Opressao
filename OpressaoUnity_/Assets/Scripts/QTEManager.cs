@@ -18,7 +18,8 @@ public enum QTEType
     AlternatingTriggers,
     DPadMovement,
     LeftStickLeft,
-    RotateLeftStick
+    RotateLeftStick,
+    HoldSticks
 }
 
 [Serializable]
@@ -284,6 +285,7 @@ public partial class QTEManager : MonoBehaviour
         switch (currentQTE.type)
         {
             case QTEType.HoldButtons:
+            case QTEType.HoldSticks:
                 UpdateHoldQTE();
                 break;
             case QTEType.ButtonSequence:
@@ -442,13 +444,19 @@ public partial class QTEManager : MonoBehaviour
         switch (currentQTE.type)
         {
             case QTEType.HoldButtons:
-                SetText(instructionText, "Mantén L2 y R2 pulsados a la vez");
+                SetText(instructionText, "Mantén L2 y R2 para respirar");
+                SetText(sequenceText, "");
+                ShowFeedback("", Color.white, 0f);
+                break;
+
+            case QTEType.HoldSticks:
+                SetText(instructionText, "Mantén ambos sticks pulsados durante 5 segundos");
                 SetText(sequenceText, "");
                 ShowFeedback("", Color.white, 0f);
                 break;
 
             case QTEType.ButtonSequence:
-                SetText(instructionText, "Pulsa los botones en el orden que aparece");
+                SetText(instructionText, "Pulsa los botones en el orden indicado");
                 ConfigureSequencePromptLayout();
                 int length = Mathf.Max(1, Mathf.RoundToInt(currentQTE.requiredAmount));
                 for (int i = 0; i < length; i++)
@@ -458,30 +466,30 @@ public partial class QTEManager : MonoBehaviour
                 break;
 
             case QTEType.RotateStick:
-                SetText(instructionText, "Gira ambos análogos");
+                SetText(instructionText, "Gira ambos sticks para liberarte");
                 SetText(sequenceText, "");
                 ShowFeedback("", Color.white, 0f);
                 break;
 
             case QTEType.AlternatingTriggers:
-                SetText(instructionText, "Pulsa y suelta L2 y R2 por turnos. Empieza por L2");
+                SetText(instructionText, "Alterna L2 y R2: pulsa y suelta. Empieza por L2");
                 SetText(sequenceText, "L2");
                 ShowFeedback("", Color.white, 0f);
                 break;
 
             case QTEType.DPadMovement:
-                SetText(instructionText, "Mantén pulsada una dirección de la cruceta");
+                SetText(instructionText, "Mantén presionadas las flechas para moverte");
                 SetText(sequenceText, "");
                 ShowFeedback("", Color.white, 0f);
                 break;
 
             case QTEType.LeftStickLeft:
-                SetText(instructionText, "Mantén el análogo izquierdo hacia la izquierda");
+                SetText(instructionText, "Mantén para abrir la ventana");
                 SetText(sequenceText, "");
                 ShowFeedback("", Color.white, 0f);
                 break;
             case QTEType.RotateLeftStick:
-                SetText(instructionText, "Gira el análogo izquierdo sin cambiar de sentido");
+                SetText(instructionText, "Gira para abrir la puerta");
                 SetText(sequenceText, "");
                 ShowFeedback("", Color.white, 0f);
                 break;
@@ -502,6 +510,10 @@ public partial class QTEManager : MonoBehaviour
                           Gamepad.current.leftTrigger.ReadValue() > 0.65f &&
                           Gamepad.current.rightTrigger.ReadValue() > 0.65f;
 
+        if (currentQTE.type == QTEType.HoldSticks)
+            controller = Gamepad.current != null && Gamepad.current.leftStickButton.isPressed &&
+                         Gamepad.current.rightStickButton.isPressed;
+
         if (keyboard || controller)
         {
             progress += Time.deltaTime;
@@ -510,7 +522,7 @@ public partial class QTEManager : MonoBehaviour
         }
         else
         {
-            progress = Mathf.Max(0f, progress - Time.deltaTime * 0.5f);
+            progress = currentQTE.type == QTEType.HoldSticks ? 0f : Mathf.Max(0f, progress - Time.deltaTime * 0.5f);
             if (holdInputWasCorrect)
                 ShowFeedback("FALTAN BOTONES", new Color(1f, 0.38f, 0.32f), 1f);
             holdInputWasCorrect = false;
@@ -795,7 +807,7 @@ public partial class QTEManager : MonoBehaviour
         SetActive(breathingPanel, true);
         SetActive(vignetteOverlay, true);
         SetCameraVignette(breathingVignetteIntensity);
-        SetBreathingStatus("Mantén L2 y R2, inhala.", new Color(1f, 0.82f, 0.18f));
+        SetBreathingStatus("Mantén L2 y R2 para inhalar", new Color(1f, 0.82f, 0.18f));
         Trace("Respiración continua activada.");
     }
 
@@ -829,9 +841,9 @@ public partial class QTEManager : MonoBehaviour
         }
 
         if (breathingHoldPhase)
-            SetBreathingStatus("Mantén L2 y R2, inhala.", new Color(1f, 0.82f, 0.18f));
+            SetBreathingStatus("Mantén L2 y R2 para inhalar", new Color(1f, 0.82f, 0.18f));
         else
-            SetBreathingStatus("Suelta L2 y R2, exhala.", new Color(0.45f, 0.8f, 1f));
+            SetBreathingStatus("Suelta L2 y R2 para exhalar", new Color(0.45f, 0.8f, 1f));
 
         UpdateBreathingBarVisual();
 
@@ -1074,6 +1086,7 @@ public partial class QTEManager : MonoBehaviour
         SyncTmpText(titleTmpText, titleText);
         SyncTmpText(instructionTmpText, instructionText);
         SyncTmpText(sequenceTmpText, sequenceText);
+        UpdateInputArtwork();
     }
 
     private static TextMeshProUGUI CreateTmpText(Text source)
@@ -1130,6 +1143,7 @@ public partial class QTEManager : MonoBehaviour
         SyncTmpText(titleTmpText, titleText);
         SyncTmpText(instructionTmpText, instructionText);
         SyncTmpText(sequenceTmpText, sequenceText);
+        UpdateInputArtwork();
     }
 
     private static void ConfigureText(Text target, int fontSize, FontStyle fontStyle, TextAnchor alignment, Color color)

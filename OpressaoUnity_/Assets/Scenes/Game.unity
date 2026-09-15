@@ -2525,6 +2525,12 @@ MonoBehaviour:
   timerContainer: {fileID: 1846135293}
   leftTimerClose: {fileID: 1107747449}
   rightTimerClose: {fileID: 1770005959}
+  arrowsArtwork: {fileID: 21300000, guid: f535c93435ee498a869323973d2ed234, type: 3}
+  pressSticksArtwork: {fileID: 21300000, guid: 5595476f224e4744d8bf8fc78d68ab0a, type: 3}
+  rotateSticksArtwork: {fileID: 21300000, guid: feb4e2b639b00c64583e518d88e4ae58, type: 3}
+  rotateSticksCompleteArtwork: {fileID: 21300000, guid: d972b46827886084ea53ac408e3366fb, type: 3}
+  leftStickLeftArtwork: {fileID: 21300000, guid: b66b1edbda26ebd48a6a04d809f24709, type: 3}
+  rotateLeftStickArtwork: {fileID: 21300000, guid: 7ccb6cd77d900f44f8f866ddad89d865, type: 3}
   qtes:
   - title: Forcejeo inicial
     type: 1
@@ -2551,7 +2557,7 @@ MonoBehaviour:
   - title: Forcejeo desesperado
     type: 2
     timeLimit: 10
-    requiredAmount: 1.5
+    requiredAmount: 2
     continuous: 0
     onSuccess:
       m_PersistentCalls:
@@ -2593,9 +2599,9 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   - title: "Es un sue\xF1o, es un sue\xF1o."
-    type: 0
-    timeLimit: 6.5
-    requiredAmount: 3.5
+    type: 7
+    timeLimit: 8.5
+    requiredAmount: 5
     continuous: 0
     onSuccess:
       m_PersistentCalls:

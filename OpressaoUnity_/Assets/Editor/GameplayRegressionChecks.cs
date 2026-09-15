@@ -80,6 +80,7 @@ public static class GameplayRegressionChecks
         cases.Enqueue(("Recorrido completo sin saltos: todos los signals y créditos", FullFlow));
         cases.Enqueue(("Secuencia: todos los botones correctos completan el QTE", CompleteSequence));
         cases.Enqueue(("Secuencia: botón incorrecto reinicia el progreso", WrongSequence));
+        cases.Enqueue(("Final: L3 y R3 sostenidos; gatillos no cuentan", FinalStickHold));
         cases.Enqueue(("Mando: giro durante pausa no suma progreso", PausedRotation));
         cases.Enqueue(("Mando: Start abre y cierra la pausa", ControllerPause));
         cases.Enqueue(("Teclado: Escape abre y cierra la pausa", KeyboardPause));
@@ -347,6 +348,31 @@ public static class GameplayRegressionChecks
         Check(!manager.IsQteActive, "Correct sequence did not complete QTE");
         Check(director.state == PlayState.Playing, "Successful input did not resume cinematic");
         ScreenCapture.CaptureScreenshot(Path.GetFullPath("gameplay-success.png")); yield return null;
+    }
+
+    private static IEnumerator FinalStickHold()
+    {
+        yield return Reset();
+        var configs = Get<List<QTEConfig>>(manager, "qtes");
+        int index = configs.FindIndex(q => q.type == QTEType.HoldSticks);
+        Check(index == configs.Count - 1, "Final QTE must use stick presses");
+        Check(configs[index].requiredAmount == 5f, "Final hold must last five seconds");
+        Check(configs[1].type == QTEType.HoldButtons, "Common breathing must retain triggers");
+        manager.StartQTE(index);
+        InputSystem.QueueStateEvent(gamepad, new GamepadState { leftTrigger = 1f, rightTrigger = 1f });
+        yield return Wait(0.1f);
+        Check(Get<float>(manager, "progress") == 0f, "Triggers advanced final hold");
+        InputSystem.QueueStateEvent(gamepad, new GamepadState().WithButton(GamepadButton.LeftStick)
+            .WithButton(GamepadButton.RightStick));
+        yield return Wait(0.2f);
+        Check(Get<float>(manager, "progress") > 0f, "Stick presses did not advance final hold");
+        InputSystem.QueueStateEvent(gamepad, new GamepadState().WithButton(GamepadButton.LeftStick));
+        yield return Wait(0.1f);
+        Check(Get<float>(manager, "progress") == 0f, "Releasing one stick must reset the hold");
+        InputSystem.QueueStateEvent(gamepad, new GamepadState().WithButton(GamepadButton.LeftStick)
+            .WithButton(GamepadButton.RightStick));
+        yield return Wait(5.2f);
+        Check(!manager.IsQteActive, "Five-second hold did not complete final QTE");
     }
 
     private static IEnumerator WrongSequence()

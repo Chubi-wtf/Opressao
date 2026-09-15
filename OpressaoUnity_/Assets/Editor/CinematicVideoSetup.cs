@@ -13,10 +13,10 @@ public static class CinematicVideoSetup
 {
     #region referencias
 
-    private const string VideoFolder = "Assets";
+    private const string VideoFolder = "Assets/Videos/Final";
     private const string GeneratedFolder = "Assets/Videos/Generated";
     private const string RootName = "CinematicVideos";
-    private const string AnimaticName = "Video completo_";
+    private const string AnimaticName = "Animatic Finale";
 
     #endregion
 

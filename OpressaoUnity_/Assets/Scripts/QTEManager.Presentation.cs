@@ -247,3 +247,72 @@ public partial class QTEManager
     }
     #endregion
 }
+
+public partial class QTEManager
+{
+    [Header("Final input artwork")]
+    [SerializeField] private Sprite pressSticksArtwork;
+    [SerializeField] private Sprite arrowsArtwork;
+    [SerializeField] private Sprite rotateSticksArtwork;
+    [SerializeField] private Sprite rotateSticksCompleteArtwork;
+    [SerializeField] private Sprite leftStickLeftArtwork;
+    [SerializeField] private Sprite rotateLeftStickArtwork;
+    private Image inputArtwork;
+
+
+    private Image CreateInputArtwork(string label, Transform parent, Vector2 position, Vector2 size)
+    {
+        RectTransform rect = CreateUiImage(label, parent, Color.white);
+        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = position;
+        rect.sizeDelta = size;
+        Image graphic = rect.GetComponent<Image>();
+        graphic.preserveAspect = true;
+        graphic.raycastTarget = false;
+        return graphic;
+    }
+
+    private void UpdateInputArtwork()
+    {
+        if (qtePanel == null) return;
+        Sprite artwork = null;
+        if (qteActive && currentQTE != null)
+        {
+            switch (currentQTE.type)
+            {
+                case QTEType.HoldSticks: artwork = pressSticksArtwork; break;
+                case QTEType.DPadMovement: artwork = arrowsArtwork; break;
+                case QTEType.RotateStick:
+                    // Alternate the two supplied illustrations to demonstrate a full turn.
+                    artwork = Mathf.FloorToInt((Time.time - presentationStartedAt) / 0.65f) % 2 == 0
+                        ? rotateSticksArtwork : rotateSticksCompleteArtwork;
+                    break;
+                case QTEType.LeftStickLeft: artwork = leftStickLeftArtwork; break;
+                case QTEType.RotateLeftStick: artwork = rotateLeftStickArtwork; break;
+            }
+        }
+        if (artwork != null && inputArtwork == null)
+            inputArtwork = CreateInputArtwork("QTE_InputArtwork", qtePanel.transform,
+                new Vector2(0f, -30f), new Vector2(540f, 245f));
+        if (inputArtwork != null)
+        {
+            inputArtwork.sprite = artwork;
+            inputArtwork.gameObject.SetActive(artwork != null);
+        }
+        // Preserve the actual face-button sequence and directions for actions without supplied art.
+        bool showArtworkCaption = artwork != null;
+        if (inputArtwork != null)
+        {
+            inputArtwork.rectTransform.anchoredPosition = new Vector2(0f, showArtworkCaption ? -45f : -30f);
+            inputArtwork.rectTransform.sizeDelta = new Vector2(540f, showArtworkCaption ? 200f : 245f);
+        }
+        if (instructionTmpText != null)
+        {
+            instructionTmpText.enabled = true;
+            instructionTmpText.rectTransform.anchoredPosition = showArtworkCaption
+                ? new Vector2(0f, 65f) : instructionText.rectTransform.anchoredPosition;
+        }
+        if (sequenceTmpText != null) sequenceTmpText.enabled = artwork == null;
+
+    }
+}
